@@ -1,0 +1,141 @@
+
+<style>
+.section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 12px; }
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.stat-label { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 4px; }
+.stat-value { font-size: 22px; font-weight: 500; margin: 0; color: var(--color-text-primary); }
+.stat-value.warn { color: #BA7517; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-weight: 500; color: var(--color-text-secondary); font-size: 12px; border-bottom: 0.5px solid var(--color-border-tertiary); padding: 6px 10px; white-space: nowrap; }
+td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+.badge-ok { background: #EAF3DE; color: #3B6D11; }
+.badge-warn { background: #FAEEDA; color: #854F0B; }
+.note { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Synthèse des mises à jour de sites web</h2>
+
+<div style="padding: 1rem 0;">
+
+<div class="stat-grid">
+  <div class="stat">
+    <p class="stat-label">Temps estimé total</p>
+    <p class="stat-value">~11h00</p>
+  </div>
+  <div class="stat">
+    <p class="stat-label">Sites avec incident</p>
+    <p class="stat-value warn">3</p>
+  </div>
+</div>
+
+<p class="section-title">Détail par site</p>
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr>
+      <th>Site</th>
+      <th>Temps</th>
+      <th>Statut</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>ALVOLVIC</strong></td>
+      <td>~1h30</td>
+      <td><span class="badge badge-warn">Résolu (incident)</span></td>
+      <td><span class="note">Erreur critique à la soumission de formulaire — résolution via SSH</span></td>
+    </tr>
+    <tr>
+      <td><strong>AuLys Blanc</strong></td>
+      <td>~1h00</td>
+      <td><span class="badge badge-warn">Partiel</span></td>
+      <td><span class="note">Montée PHP échouée (thème trop ancien) — montée WP et test formulaire OK</span></td>
+    </tr>
+    <tr>
+      <td><strong>OSENSBEAUTÉ</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-warn">Résolu (incident)</span></td>
+      <td><span class="note">Problème slider — résolu, plugins + WP à jour, formulaires OK</span></td>
+    </tr>
+    <tr>
+      <td><strong>Marsat</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-warn">Partiel</span></td>
+      <td><span class="note">Certaines extensions non mises à jour (licences non payées) — formulaires en test</span></td>
+    </tr>
+    <tr>
+      <td><strong>Gestion 4</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-warn">Résolu (incident)</span></td>
+      <td><span class="note">Formulaire ne partait pas — résolu, passe par le NDD Charlie</span></td>
+    </tr>
+    <tr>
+      <td><strong>Humadôme</strong></td>
+      <td>~20min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><strong>Angel</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td><span class="note">Plugins mis à jour, formulaire testé</span></td>
+    </tr>
+    <tr>
+      <td><strong>Chalets les Granges</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td><span class="note">Extensions + WP à jour, formulaire OK</span></td>
+    </tr>
+    <tr>
+      <td><strong>Denis Maloigne</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td><span class="note">Extensions + WP à jour, formulaire OK</span></td>
+    </tr>
+    <tr>
+      <td><strong>SPDéco</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td><span class="note">Extensions + WP à jour, formulaire OK</span></td>
+    </tr>
+    <tr>
+      <td><strong>ADluxe</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td><span class="note">Plugins à jour, formulaire OK</span></td>
+    </tr>
+    <tr>
+      <td><strong>Catherine Parrain</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td><span class="note">Plugins à jour, formulaire contact OK</span></td>
+    </tr>
+    <tr>
+      <td><strong>Enduit PRO</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td><span class="note">MAJ faite, formulaire testé</span></td>
+    </tr>
+    <tr>
+      <td><strong>Fors Performance</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td><span class="note">MAJ et formulaire testés</span></td>
+    </tr>
+    <tr>
+      <td><strong>TCT</strong></td>
+      <td>~30min</td>
+      <td><span class="badge badge-ok">OK</span></td>
+      <td><span class="note">Plugins + WP à jour, formulaire testé</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</div>

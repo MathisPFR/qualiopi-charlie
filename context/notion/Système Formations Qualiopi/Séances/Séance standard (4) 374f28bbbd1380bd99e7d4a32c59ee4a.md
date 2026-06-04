@@ -1,0 +1,8 @@
+# Séance standard (4)
+
+Date de la séance: 11 juin 2026
+Formations: Formation - X (../Formations/Formation%20-%20X%20374f28bbbd1380c49077c7f2f4f273c4.md)
+Heure début: 8
+Heure fin: 14
+Inclure dans l’émargement: Yes
+Émargement généré: Yes

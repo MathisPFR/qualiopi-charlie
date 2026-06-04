@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FormationStatut {
+  BROUILLON
+  A_LANCER
+  EN_COURS
+  TERMINEE
+  ARCHIVEE
+}
+
+enum Modalite {
+  PRESENTIEL
+  MIXTE
+  DISTANCIEL
+}
+
+enum AutomationWorkflow {
+  LANCEMENT
+  EMARGEMENTS
+  FIN_FORMATION
+  EVAL_FROID
+  FORM_BESOINS_STAGIAIRE
+  FORM_BESOINS_ENTREPRISE
+  FORM_EVAL_CHAUD
+  FORM_EVAL_ENTREPRISE
+  TEST_EMAIL
+}
+
+enum AutomationStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum FormType {
+  BESOINS_STAGIAIRE
+  BESOINS_ENTREPRISE
+  EVAL_CHAUD
+  EVAL_ENTREPRISE
+  EVAL_FROID
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Entreprise {
+  id         String      @id @default(cuid())
+  raisonSociale String
+  email      String
+  contactNom String?
+  telephone  String?
+  adresse    String?
+  codePostal String?
+  ville      String?
+  formations Formation[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Formateur {
+  id         String      @id @default(cuid())
+  nom        String
+  email      String?
+  formations Formation[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Formation {
+  id                    String          @id @default(cuid())
+  slug                  String          @unique
+  intitule              String
+  intituleCommercial    String
+  nomClient             String
+  dateDebut             DateTime
+  dateFin               DateTime
+  lieu                  String          @default("Formation réalisée à distance, en visioconférence via Teams.")
+  modalite              Modalite        @default(DISTANCIEL)
+  dureeHeures           Int
+  tarifTotalHt          Float
+  tarifParPersonne      Float?
+  codeFormation         String?
+  statut                FormationStatut @default(BROUILLON)
+  storagePath           String?
+  programmePath         String?
+  devisPath             String?
+  devisUploadedAt       DateTime?
+
+  lancementAt           DateTime?
+  conventionGenerated   Boolean         @default(false)
+  emargementsGenerated  Boolean         @default(false)
+  finFormationProcessed Boolean         @default(false)
+  evalFroidSent         Boolean         @default(false)
+
+  entrepriseId          String?
+  entreprise            Entreprise?     @relation(fields: [entrepriseId], references: [id])
+  formateurId           String?
+  formateur             Formateur?      @relation(fields: [formateurId], references: [id])
+
+  stagiaires            Stagiaire[]
+  seances               Seance[]
+  objectifs             ObjectifFormation[]
+  automationRuns        AutomationRun[]
+  formSubmissions       FormSubmission[]
+
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+}
+
+model Stagiaire {
+  id              String    @id @default(cuid())
+  formationId     String
+  formation       Formation @relation(fields: [formationId], references: [id], onDelete: Cascade)
+  prenom          String
+  nom             String
+  email           String
+  telephone       String?
+  fonction        String?
+  evalFroidSent   Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Seance {
+  id                 String    @id @default(cuid())
+  formationId        String
+  formation          Formation @relation(fields: [formationId], references: [id], onDelete: Cascade)
+  nom                String    @default("Séance")
+  date               DateTime
+  heureDebut         String
+  heureFin           String
+  includeInEmargement Boolean  @default(true)
+  emargementGenerated Boolean @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model ObjectifFormation {
+  id          String    @id @default(cuid())
+  formationId String
+  formation   Formation @relation(fields: [formationId], references: [id], onDelete: Cascade)
+  libelle     String
+  createdAt   DateTime  @default(now())
+}
+
+model AutomationRun {
+  id          String             @id @default(cuid())
+  formationId String?
+  formation   Formation?         @relation(fields: [formationId], references: [id], onDelete: Cascade)
+  workflow    AutomationWorkflow
+  status      AutomationStatus   @default(RUNNING)
+  message     String?
+  payload     Json?
+  startedAt   DateTime           @default(now())
+  finishedAt  DateTime?
+}
+
+model FormSubmission {
+  id          String    @id @default(cuid())
+  formationId String
+  formation   Formation @relation(fields: [formationId], references: [id], onDelete: Cascade)
+  type        FormType
+  stagiaireId String?
+  responses   Json
+  pdfPath     String?
+  createdAt   DateTime  @default(now())
+}
