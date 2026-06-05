@@ -35,6 +35,10 @@ export async function listFormations() {
     orderBy: { updatedAt: "desc" },
     include: {
       entreprise: true,
+      stagiaires: { select: { id: true, prenom: true, nom: true } },
+      formSubmissions: {
+        select: { type: true, stagiaireId: true, createdAt: true, pdfPath: true },
+      },
       _count: { select: { stagiaires: true } },
     },
   });
@@ -51,7 +55,15 @@ export async function getFormation(id: string) {
       seances: { orderBy: { date: "asc" } },
       objectifs: true,
       automationRuns: { orderBy: { startedAt: "desc" }, take: 30 },
-      formSubmissions: { orderBy: { createdAt: "desc" }, take: 20 },
+      formSubmissions: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          type: true,
+          stagiaireId: true,
+          createdAt: true,
+          pdfPath: true,
+        },
+      },
     },
   });
 }

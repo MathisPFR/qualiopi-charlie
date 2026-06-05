@@ -124,6 +124,7 @@ export function buildTemplateData(
     formateur: formation.formateur?.nom ?? "",
     objectifs: objectifsText,
     orgName: getClientConfig().orgName,
+    ORG_NAME: getClientConfig().orgName,
   };
 
   formation.stagiaires.forEach((s, i) => {

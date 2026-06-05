@@ -38,6 +38,8 @@ bash scripts/dev.sh
 
 Ouvrir http://localhost:3000 — connexion : `admin@charlie.local` / `admin123` (voir `.env`).
 
+**Base de données (Adminer)** : http://localhost:8080 — système **PostgreSQL**, serveur **postgres**, utilisateur **qualiopi**, mot de passe **qualiopi**, base **qualiopi**.
+
 ### Internal Server Error sur toutes les pages
 
 Le cache `.next` est probablement corrompu (build interrompu). Redémarrage propre :

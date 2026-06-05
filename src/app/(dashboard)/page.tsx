@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { listFormations } from "@/server/actions/formations";
 import { FormationStatutBadge } from "@/components/formation-statut-badge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDateFr } from "@/lib/utils";
+import {
+  buildFormationFormStatus,
+  formatFormCompletionLabel,
+} from "@/lib/form-submission-status";
 
 export default async function HomePage() {
   const formations = await listFormations();
@@ -34,7 +39,17 @@ export default async function HomePage() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {formations.map((f) => (
+          {formations.map((f) => {
+            const formStatus = buildFormationFormStatus(
+              f.stagiaires,
+              f.formSubmissions
+            );
+            const completionLabel = formatFormCompletionLabel(formStatus.summary);
+            const allDone =
+              formStatus.summary.total > 0 &&
+              formStatus.summary.answered === formStatus.summary.total;
+
+            return (
             <Card
               key={f.id}
               className="transition-shadow hover:shadow-md"
@@ -48,7 +63,12 @@ export default async function HomePage() {
                     {f.intitule}
                   </Link>
                 </CardTitle>
-                <FormationStatutBadge statut={f.statut} />
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant={allDone ? "success" : "outline"}>
+                    Formulaires {completionLabel}
+                  </Badge>
+                  <FormationStatutBadge statut={f.statut} />
+                </div>
               </CardHeader>
               <CardContent className="space-y-1 text-sm text-muted-foreground">
                 <p>{f.intituleCommercial}</p>
@@ -59,10 +79,14 @@ export default async function HomePage() {
                 <p className="text-xs">
                   {f._count.stagiaires} stagiaire
                   {f._count.stagiaires > 1 ? "s" : ""}
+                  {" · "}
+                  Entreprise {formStatus.summary.entrepriseAnswered}/
+                  {formStatus.summary.entrepriseTotal}
                 </p>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

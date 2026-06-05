@@ -44,6 +44,22 @@ Admin unique pour le POC.
 
 Voir [`prisma/schema.prisma`](../prisma/schema.prisma).
 
+## Visualiser la base (Adminer)
+
+Avec `docker compose up -d`, ouvrir http://localhost:8080 :
+
+| Champ | Valeur |
+|-------|--------|
+| Système | PostgreSQL |
+| Serveur | `postgres` |
+| Utilisateur | `qualiopi` |
+| Mot de passe | `qualiopi` |
+| Base | `qualiopi` |
+
+Tables utiles pour la démo : `Formation`, `Stagiaire`, `Seance`, `FormSubmission`, `AutomationRun`.
+
+Alternative sans Docker : `npm run db:studio` (Prisma Studio sur http://localhost:5555).
+
 ## Commandes
 
 ```bash

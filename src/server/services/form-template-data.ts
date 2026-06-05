@@ -1,11 +1,26 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { Stagiaire } from "@prisma/client";
+import { SCALE_ACQUIS_FROID } from "@/lib/public-form-schemas";
 import {
   buildTemplateData,
   stagiaireFullName,
   type FormationFull,
 } from "@/server/services/formation-data";
+
+function acquisFroidLabel(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const opt = SCALE_ACQUIS_FROID.find((o) => o.value === trimmed);
+  return opt?.label ?? trimmed;
+}
+
+export type EvalFroidObjectifRow = {
+  num: string;
+  libelle: string;
+  acquis: string;
+  commentaire: string;
+};
 
 function fmtDate(d: Date) {
   return format(d, "d MMMM yyyy", { locale: fr });
@@ -51,15 +66,25 @@ export function buildFormTemplateData(
     data.NOM_PRENOM_STAGIAIRE = nomComplet;
   }
 
+  const objectifsRows: EvalFroidObjectifRow[] = formation.objectifs.map((o, i) => {
+    const n = i + 1;
+    const acquisKey = `ACQUIS_${n}`;
+    const rawAcquis = responses[acquisKey] ?? data[acquisKey] ?? "";
+    return {
+      num: String(n),
+      libelle: o.libelle,
+      acquis: acquisFroidLabel(String(rawAcquis)),
+      commentaire: responses[`COMMENTAIRE_OBJ_${n}`] ?? "",
+    };
+  });
+  (data as Record<string, unknown>).OBJECTIFS = objectifsRows;
+
   formation.objectifs.forEach((o, i) => {
     const n = i + 1;
     data[`OBJECTIFS_DE_FORMATION_${n}`] = o.libelle;
+    data[`ACQUIS_${n}`] = objectifsRows[i]?.acquis ?? "";
+    data[`COMMENTAIRE_OBJ_${n}`] = objectifsRows[i]?.commentaire ?? "";
   });
-
-  for (let i = 1; i <= 10; i++) {
-    if (!data[`ACQUIS_${i}`]) data[`ACQUIS_${i}`] = "";
-    if (!data[`COMMENTAIRE_OBJ_${i}`]) data[`COMMENTAIRE_OBJ_${i}`] = "";
-  }
 
   if (!data.changements) data.changements = "";
   if (!data.commentaires) data.commentaires = "";

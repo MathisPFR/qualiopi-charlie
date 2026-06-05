@@ -36,7 +36,7 @@ const TEMPLATE_KEYWORDS: Record<TemplateKey, string[]> = {
   "besoins-entreprise": ["besoin l_entreprise", "besoin entreprise"],
   "eval-chaud": ["à chaud stagiaire", "a chaud stagiaire"],
   "eval-entreprise": ["satisfaction entreprise"],
-  "eval-froid": ["a froid", "à froid"],
+  "eval-froid": ["a froid stagiaire", "à froid stagiaire", "grille"],
 };
 
 const TEMPLATE_SUBDIR: Record<TemplateKey, string> = {
@@ -116,6 +116,38 @@ async function pickEmargementTemplate(
   return pickTemplateFile(docxFiles, (n) => keywords.some((kw) => n.includes(kw)));
 }
 
+/** Modèle avec boucle {{#OBJECTIFS}} (nombre d'objectifs dynamique). */
+async function pickEvalFroidTemplate(
+  subdir: string,
+  docxFiles: string[]
+): Promise<string | undefined> {
+  const keywords = TEMPLATE_KEYWORDS["eval-froid"].map(normalize);
+  const matches = docxFiles.filter(
+    (name) =>
+      keywords.some((kw) => normalize(name).includes(kw)) &&
+      !isDriveDuplicateCopy(name)
+  );
+  const pool = matches.length > 0 ? matches : docxFiles.filter((n) => !isDriveDuplicateCopy(n));
+
+  for (const name of pool) {
+    if (!normalize(name).includes("froid")) continue;
+    const content = await fs.readFile(path.join(subdir, name));
+    const zip = new PizZip(content);
+    const xml = zip.file("word/document.xml")?.asText() ?? "";
+    if (/#OBJECTIFS/i.test(xml)) return name;
+  }
+
+  for (const name of pool) {
+    if (!normalize(name).includes("froid")) continue;
+    const content = await fs.readFile(path.join(subdir, name));
+    const zip = new PizZip(content);
+    const xml = zip.file("word/document.xml")?.asText() ?? "";
+    if (/ACQUIS_1/i.test(xml)) return name;
+  }
+
+  return undefined;
+}
+
 async function resolveTemplatePath(key: TemplateKey): Promise<string> {
   const root = getTemplatesRoot();
   const subdir = path.join(root, TEMPLATE_SUBDIR[key]);
@@ -145,6 +177,11 @@ async function resolveTemplatePath(key: TemplateKey): Promise<string> {
   if (key === "emargement") {
     const emargement = await pickEmargementTemplate(subdir, docxFiles);
     if (emargement) return path.join(subdir, emargement);
+  }
+
+  if (key === "eval-froid") {
+    const evalFroid = await pickEvalFroidTemplate(subdir, docxFiles);
+    if (evalFroid) return path.join(subdir, evalFroid);
   }
 
   const chosen = pickTemplateFile(docxFiles, (n) =>

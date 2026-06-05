@@ -7,6 +7,7 @@ import { FormationWorkflowSteps } from "@/components/formation-workflow-steps";
 import { FormationStatutBadge } from "@/components/formation-statut-badge";
 import { DevisUpload } from "@/components/devis-upload";
 import { FormationDrive } from "@/components/formation-drive";
+import { FormationFormStatus } from "@/components/formation-form-status";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDateFr } from "@/lib/utils";
@@ -16,6 +17,7 @@ import {
   STATUT_LABELS,
 } from "@/lib/formation-ui";
 import { FormationStatut, Modalite } from "@prisma/client";
+import { buildFormationFormStatus } from "@/lib/form-submission-status";
 
 export default async function FormationDetailPage({
   params,
@@ -52,6 +54,10 @@ export default async function FormationDetailPage({
   const livretActif =
     formation.modalite === Modalite.PRESENTIEL ||
     formation.modalite === Modalite.MIXTE;
+  const formStatus = buildFormationFormStatus(
+    formation.stagiaires,
+    formation.formSubmissions
+  );
 
   return (
     <div className="space-y-6">
@@ -183,6 +189,12 @@ export default async function FormationDetailPage({
           </Card>
         </div>
       </div>
+
+      <FormationFormStatus
+        status={formStatus}
+        formationId={formation.id}
+        storagePath={formation.storagePath}
+      />
 
       <FormationDrive formationId={formation.id} />
 
