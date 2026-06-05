@@ -8,6 +8,7 @@ import { FormationStatutBadge } from "@/components/formation-statut-badge";
 import { DevisUpload } from "@/components/devis-upload";
 import { FormationDrive } from "@/components/formation-drive";
 import { FormationFormStatus } from "@/components/formation-form-status";
+import { FormationSignatureStatus } from "@/components/formation-signature-status";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatDateFr } from "@/lib/utils";
@@ -196,6 +197,15 @@ export default async function FormationDetailPage({
         storagePath={formation.storagePath}
       />
 
+      <FormationSignatureStatus
+        formationId={formation.id}
+        storagePath={formation.storagePath}
+        conventionSigned={formation.conventionSigned}
+        conventionSignedAt={formation.conventionSignedAt}
+        stagiaires={formation.stagiaires}
+        signatureRequests={formation.signatureRequests}
+      />
+
       <FormationDrive formationId={formation.id} />
 
       <Card>
@@ -246,8 +256,8 @@ export default async function FormationDetailPage({
       </Card>
 
       <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
-        POC Qualiopi — signatures électroniques (Zoho Sign) hors périmètre : les
-        conventions sont générées en PDF non signé. Statut actuel :{" "}
+        POC Qualiopi — signatures via DocuSeal (open source, self-host) lorsque
+        activé. Statut actuel :{" "}
         <strong>{STATUT_LABELS[formation.statut]}</strong>.
       </p>
     </div>

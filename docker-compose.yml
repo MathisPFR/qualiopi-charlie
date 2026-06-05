@@ -32,5 +32,18 @@ services:
     environment:
       ADMINER_DEFAULT_SERVER: postgres
 
+  # Signatures électroniques (open source) — http://localhost:3002
+  docuseal:
+    image: docuseal/docuseal:latest
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    volumes:
+      - docuseal_data:/data
+    environment:
+      DATABASE_URL: sqlite3:///data/docuseal.db
+      SECRET_KEY_BASE: ${DOCUSEAL_SECRET_KEY:-dev-docuseal-secret-change-in-production}
+
 volumes:
   postgres_data:
+  docuseal_data:

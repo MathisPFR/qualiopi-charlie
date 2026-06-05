@@ -7,8 +7,9 @@ export default auth((req) => {
   const isPublicForm = req.nextUrl.pathname.startsWith("/f/");
   const isApiAuth = req.nextUrl.pathname.startsWith("/api/auth");
   const isCron = req.nextUrl.pathname.startsWith("/api/cron");
+  const isWebhook = req.nextUrl.pathname.startsWith("/api/webhooks");
 
-  if (isPublicForm || isApiAuth || isCron) return NextResponse.next();
+  if (isPublicForm || isApiAuth || isCron || isWebhook) return NextResponse.next();
   if (!isLoggedIn && !isLogin) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }

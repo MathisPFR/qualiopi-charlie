@@ -94,10 +94,11 @@ npm run dev
 - [docs/WORKFLOWS.md](docs/WORKFLOWS.md)
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 - [docs/EMAIL_SETUP.md](docs/EMAIL_SETUP.md)
+- [docs/DOCUSEAL_SETUP.md](docs/DOCUSEAL_SETUP.md)
 
-## Hors scope POC
+## Signatures électroniques
 
-Signatures Zoho Sign (PDF non signés uniquement).
+Intégration **DocuSeal** (open source, self-host) : convention entreprise + règlement intérieur par stagiaire. Voir [docs/DOCUSEAL_SETUP.md](docs/DOCUSEAL_SETUP.md).
 
 ## Contexte métier
 

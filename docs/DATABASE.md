@@ -36,6 +36,10 @@ Journal d'audit : `workflow`, `status`, `message`, `payload` JSON.
 
 Réponses formulaires publics + chemin PDF généré.
 
+### SignatureRequest
+
+Demandes DocuSeal (convention, règlement intérieur) : statut, lien, PDF signé archivé.
+
 ### User
 
 Admin unique pour le POC.
@@ -56,7 +60,7 @@ Avec `docker compose up -d`, ouvrir http://localhost:8080 :
 | Mot de passe | `qualiopi` |
 | Base | `qualiopi` |
 
-Tables utiles pour la démo : `Formation`, `Stagiaire`, `Seance`, `FormSubmission`, `AutomationRun`.
+Tables utiles pour la démo : `Formation`, `Stagiaire`, `Seance`, `FormSubmission`, `SignatureRequest`, `AutomationRun`.
 
 Alternative sans Docker : `npm run db:studio` (Prisma Studio sur http://localhost:5555).
 

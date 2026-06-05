@@ -64,6 +64,9 @@ export async function getFormation(id: string) {
           pdfPath: true,
         },
       },
+      signatureRequests: {
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 }

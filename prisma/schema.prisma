@@ -30,7 +30,20 @@ enum AutomationWorkflow {
   FORM_BESOINS_ENTREPRISE
   FORM_EVAL_CHAUD
   FORM_EVAL_ENTREPRISE
+  SIGNATURES
   TEST_EMAIL
+}
+
+enum SignatureDocumentType {
+  CONVENTION
+  REGLEMENT_INTERIEUR
+}
+
+enum SignatureRequestStatus {
+  PENDING
+  COMPLETED
+  DECLINED
+  EXPIRED
 }
 
 enum AutomationStatus {
@@ -104,6 +117,8 @@ model Formation {
   emargementsGenerated  Boolean         @default(false)
   finFormationProcessed Boolean         @default(false)
   evalFroidSent         Boolean         @default(false)
+  conventionSigned      Boolean         @default(false)
+  conventionSignedAt    DateTime?
 
   entrepriseId          String?
   entreprise            Entreprise?     @relation(fields: [entrepriseId], references: [id])
@@ -115,6 +130,7 @@ model Formation {
   objectifs             ObjectifFormation[]
   automationRuns        AutomationRun[]
   formSubmissions       FormSubmission[]
+  signatureRequests     SignatureRequest[]
 
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
@@ -130,6 +146,9 @@ model Stagiaire {
   telephone       String?
   fonction        String?
   evalFroidSent   Boolean   @default(false)
+  riSigned        Boolean   @default(false)
+  riSignedAt      DateTime?
+  signatureRequests SignatureRequest[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
@@ -177,4 +196,23 @@ model FormSubmission {
   responses   Json
   pdfPath     String?
   createdAt   DateTime  @default(now())
+}
+
+model SignatureRequest {
+  id                    String                 @id @default(cuid())
+  formationId           String
+  formation             Formation              @relation(fields: [formationId], references: [id], onDelete: Cascade)
+  stagiaireId           String?
+  stagiaire             Stagiaire?             @relation(fields: [stagiaireId], references: [id], onDelete: Cascade)
+  documentType          SignatureDocumentType
+  docusealSubmissionId  Int                    @unique
+  status                SignatureRequestStatus @default(PENDING)
+  signUrl               String?
+  signedPdfPath         String?
+  signerEmail           String
+  createdAt             DateTime               @default(now())
+  completedAt           DateTime?
+
+  @@index([formationId, documentType])
+  @@index([stagiaireId, documentType])
 }
