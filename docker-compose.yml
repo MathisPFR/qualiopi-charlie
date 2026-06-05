@@ -10,6 +10,7 @@ services:
       POSTGRES_DB: qualiopi
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-docuseal-db.sh:/docker-entrypoint-initdb.d/init-docuseal-db.sh:ro
 
   # Conversion DOCX → PDF (LibreOffice embarqué, sans install locale)
   gotenberg:
@@ -40,9 +41,11 @@ services:
       - "3002:3000"
     volumes:
       - docuseal_data:/data
+    depends_on:
+      - postgres
     environment:
-      DATABASE_URL: sqlite3:///data/docuseal.db
-      SECRET_KEY_BASE: ${DOCUSEAL_SECRET_KEY:-dev-docuseal-secret-change-in-production}
+      DATABASE_URL: postgresql://qualiopi:qualiopi@postgres:5432/docuseal
+      SECRET_KEY_BASE: ${DOCUSEAL_SECRET_KEY:-dev-docuseal-secret-change-in-production-use-openssl-rand-hex-32}
 
 volumes:
   postgres_data:

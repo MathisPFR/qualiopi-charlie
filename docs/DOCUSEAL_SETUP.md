@@ -10,6 +10,14 @@ docker compose up -d docuseal
 
 Interface : http://localhost:3002
 
+DocuSeal utilise **PostgreSQL** (base `docuseal` sur le conteneur `postgres` du projet).
+
+Si Postgres tournait déjà avant cette config, créez la base une fois :
+
+```bash
+docker exec qualiopi-charlie-postgres-1 psql -U qualiopi -d qualiopi -c "CREATE DATABASE docuseal;"
+```
+
 1. Créer un compte admin au premier lancement
 2. **Settings → API** : générer une clé API
 3. **Settings → Webhooks** : ajouter
