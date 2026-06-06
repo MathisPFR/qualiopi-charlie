@@ -64,6 +64,5 @@ export const AUTOMATION_WORKFLOW_LABELS: Partial<Record<AutomationWorkflow, stri
     FORM_BESOINS_ENTREPRISE: "Formulaire besoins entreprise",
     FORM_EVAL_CHAUD: "Évaluation à chaud",
     FORM_EVAL_ENTREPRISE: "Évaluation entreprise",
-    SIGNATURES: "Signatures DocuSeal",
     TEST_EMAIL: "Test email",
   };

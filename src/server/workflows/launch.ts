@@ -25,8 +25,6 @@ import {
   subPath,
   writeFile,
 } from "@/server/services/storage";
-import { sendLaunchSignatureRequests } from "@/server/workflows/signatures";
-import { isDocusealEnabled } from "@/server/services/docuseal";
 
 function safeFilenamePart(s: string) {
   return s.replace(/[/\\?%*:|"<>]/g, "-").trim().slice(0, 60) || "client";
@@ -129,9 +127,8 @@ export async function launchFormation(formationId: string) {
     );
     const riDest = subPath(base, "avant-la-formation", "Reglement-interieur.pdf");
     let riReady = false;
-    let riPdf: Buffer | null = null;
     try {
-      riPdf = await convertStaticDocxToPdf(riSrc);
+      const riPdf = await convertStaticDocxToPdf(riSrc);
       await writeFile(riDest, riPdf);
       riReady = true;
     } catch {
@@ -252,23 +249,7 @@ export async function launchFormation(formationId: string) {
       data: { conventionGenerated: true },
     });
 
-    if (isDocusealEnabled()) {
-      await sendLaunchSignatureRequests(formationId, {
-        conventionPath,
-        conventionPdf: conventionDoc.buffer,
-        conventionFilename,
-        riPath: riReady ? riDest : null,
-        riPdf: riReady ? riPdf : null,
-      });
-    }
-
-    await finishRun(
-      run.id,
-      AutomationStatus.SUCCESS,
-      isDocusealEnabled()
-        ? "Lancement terminé (PDF + DocuSeal)"
-        : "Lancement terminé (PDF)"
-    );
+    await finishRun(run.id, AutomationStatus.SUCCESS, "Lancement terminé (PDF)");
     return { success: true, storagePath: base };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

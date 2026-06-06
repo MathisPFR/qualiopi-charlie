@@ -3,7 +3,7 @@
 | Make | Fichier | Déclencheur |
 |------|---------|-------------|
 | Lancement formation | `launch.ts` | Bouton « Valider et lancer » |
-| Signatures DocuSeal | `signatures.ts` | Lancement (si DocuSeal activé) + webhook |
+| Signatures Zoho | — | **Hors scope POC** |
 | Émargements | `emargements.ts` | Statut → `EN_COURS` |
 | Fin de formation | `fin-formation.ts` | Statut → `TERMINEE` |
 | Éval à froid M+2 | `eval-froid.ts` | Cron / bouton admin |
