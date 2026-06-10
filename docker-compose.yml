@@ -1,4 +1,31 @@
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://qualiopi:qualiopi@postgres:5432/qualiopi?schema=public
+      GOTENBERG_URL: http://gotenberg:3000
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - .:/app
+      - app_node_modules:/app/node_modules
+      - ./storage:/app/storage
+      - ./templates:/app/templates
+      - ./config:/app/config
+    depends_on:
+      postgres:
+        condition: service_healthy
+      gotenberg:
+        condition: service_started
+
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -10,8 +37,13 @@ services:
       POSTGRES_DB: qualiopi
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qualiopi -d qualiopi"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
-  # Conversion DOCX → PDF (LibreOffice embarqué, sans install locale)
   gotenberg:
     image: gotenberg/gotenberg:8
     restart: unless-stopped
@@ -21,16 +53,17 @@ services:
       - gotenberg
       - --api-timeout=120s
 
-  # Interface web PostgreSQL (Adminer)
   adminer:
     image: adminer:4
     restart: unless-stopped
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       ADMINER_DEFAULT_SERVER: postgres
 
 volumes:
   postgres_data:
+  app_node_modules:

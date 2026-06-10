@@ -1,0 +1,12 @@
+# Production : docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+services:
+  app:
+    build:
+      target: runner
+    environment:
+      NODE_ENV: production
+    volumes:
+      - ./storage:/app/storage
+      - ./templates:/app/templates
+      - ./config:/app/config
+    # Pas de bind-mount du code source ni de volume node_modules en prod

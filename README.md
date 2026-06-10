@@ -4,68 +4,57 @@ Automatisation administrative des formations Qualiopi (remplacement Notion + Mak
 
 ## Prérequis
 
-- Node.js 20+
-- Docker (PostgreSQL)
-- **PDF lisibles** : `docker compose up -d` démarre **Gotenberg** (LibreOffice dans Docker, port 3001) — **pas besoin de `sudo apt install libreoffice`**
-  - Voir [docs/PDF_SETUP.md](docs/PDF_SETUP.md)
-  - Test : `node scripts/test-pdf.mjs`
+- **Docker** et **Docker Compose** uniquement (pas de Node.js local requis)
 - Compte **Resend** (gratuit) ou **Brevo SMTP** pour les emails réels
 
-## Démarrage rapide
+## Démarrage rapide (Docker)
 
 ```bash
-# 1. PostgreSQL + conversion PDF (Gotenberg / LibreOffice dockerisé)
-docker compose up -d
-
-# 2. Variables d'environnement
+# 1. Variables d'environnement + config client
 cp .env.example .env
+cp config/client.json.example config/client.json
 # Renseigner RESEND_API_KEY (ou SMTP) — voir docs/EMAIL_SETUP.md
 
-cp config/client.json.example config/client.json
+# 2. Toute la stack (app + Postgres + Gotenberg + Adminer)
+chmod +x scripts/docker-up.sh scripts/docker-seed.sh scripts/docker-shell.sh
+./scripts/docker-up.sh -d
 
-# 3. Dépendances (depuis WSL/Linux, pas Windows npm sur node_modules)
-npm install --legacy-peer-deps
-
-# 4. Base de données
-node node_modules/prisma/build/index.js db push
-node prisma/seed.mjs
-
-# 5. Lancer l'app (WSL — ne pas utiliser npm Windows)
-chmod +x scripts/dev.sh
-bash scripts/dev.sh
-# ou : npm run dev   (seulement si `which npm` pointe vers Linux, pas /mnt/c/...)
+# 3. Seed initial (première fois)
+./scripts/docker-seed.sh
 ```
 
 Ouvrir http://localhost:3000 — connexion : `admin@charlie.local` / `admin123` (voir `.env`).
 
 **Base de données (Adminer)** : http://localhost:8080 — système **PostgreSQL**, serveur **postgres**, utilisateur **qualiopi**, mot de passe **qualiopi**, base **qualiopi**.
 
-### Internal Server Error sur toutes les pages
+### Commandes utiles
 
-Le cache `.next` est probablement corrompu (build interrompu). Redémarrage propre :
+| Commande | Action |
+|----------|--------|
+| `./scripts/docker-up.sh -d` | Démarrer en arrière-plan |
+| `docker compose logs -f app` | Logs de l'application |
+| `docker compose down` | Arrêter la stack |
+| `./scripts/docker-seed.sh` | Réinitialiser les données de démo |
+| `./scripts/docker-shell.sh` | Shell dans le conteneur (Node 22) |
+
+### Production (1 VPS = 1 client)
 
 ```bash
-bash scripts/restart-dev.sh
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+./scripts/docker-seed.sh
+```
+
+Voir [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+### Internal Server Error sur toutes les pages
+
+```bash
+docker compose down
+docker volume rm qualiopi-charlie_app_node_modules 2>/dev/null || true
+./scripts/docker-up.sh -d --build
 ```
 
 Puis rafraîchir http://localhost:3000 (Ctrl+Shift+R).
-
-### Problème `npm run dev` / `'next' n'est pas reconnu`
-
-Sous WSL, si `which npm` affiche `/mnt/c/Program Files/...`, c'est **npm Windows** : il ne fonctionne pas dans le dossier Linux.
-
-**Solution immédiate :**
-```bash
-bash scripts/dev.sh
-```
-
-**Solution durable :** installer Node dans WSL :
-```bash
-sudo apt update && sudo apt install -y nodejs npm
-# puis dans le projet :
-npm install --legacy-peer-deps
-npm run dev
-```
 
 ## Parcours démo
 
@@ -94,6 +83,7 @@ npm run dev
 - [docs/WORKFLOWS.md](docs/WORKFLOWS.md)
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 - [docs/EMAIL_SETUP.md](docs/EMAIL_SETUP.md)
+- [docs/PDF_SETUP.md](docs/PDF_SETUP.md)
 
 ## Hors scope POC
 
