@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maquette — Bibliothèque globale</title>
+  <!-- Governs: bibliotheque-spec.md · Mode app sidebar · split tree + preview -->
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #0f172a;
+      --muted: #f1f5f9;
+      --muted-fg: #64748b;
+      --primary: #2563eb;
+      --primary-fg: #f8fafc;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #e2e8f0;
+      color: var(--foreground);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .viewport {
+      max-width: 1200px; margin: 24px auto;
+      background: var(--muted); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    }
+    .app { display: flex; min-height: 680px; }
+    /* Mode app sidebar */
+    .sidebar {
+      width: 220px; background: var(--background); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0; padding: 16px 12px;
+    }
+    .sidebar .logo { font-weight: 600; font-size: 14px; color: var(--primary); margin-bottom: 4px; }
+    .sidebar .tagline { font-size: 11px; color: var(--muted-fg); margin-bottom: 20px; }
+    .sidebar a {
+      display: block; padding: 8px 10px; border-radius: 6px; color: var(--muted-fg);
+      text-decoration: none; margin-bottom: 2px; font-size: 13px;
+    }
+    .sidebar a.active { background: #eff6ff; color: var(--primary); font-weight: 500; }
+    .sidebar-footer { margin-top: auto; padding-top: 16px; font-size: 12px; color: var(--muted-fg); border-top: 1px solid var(--border); }
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--background); }
+    .page-header { padding: 20px 24px 0; }
+    .page-header h1 { font-size: 22px; font-weight: 700; }
+    .page-header p { font-size: 13px; color: var(--muted-fg); margin-top: 4px; }
+    .toolbar {
+      display: flex; gap: 10px; padding: 16px 24px; flex-wrap: wrap; align-items: center;
+    }
+    .search {
+      flex: 1; min-width: 200px; padding: 8px 12px; border: 1px solid var(--border);
+      border-radius: 6px; font-size: 13px;
+    }
+    .btn {
+      padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border); background: var(--background); cursor: pointer;
+    }
+    .btn-ghost { border: none; color: var(--muted-fg); }
+    .btn-primary { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+    .drive-split {
+      flex: 1; display: flex; border-top: 1px solid var(--border); min-height: 480px;
+    }
+    .tree-panel {
+      width: 340px; border-right: 1px solid var(--border); background: var(--muted);
+      overflow-y: auto; padding: 12px;
+    }
+    .tree-formation { margin-bottom: 8px; }
+    .tree-formation-header {
+      display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 6px;
+      font-weight: 600; font-size: 13px; cursor: pointer;
+    }
+    .tree-formation-header:hover { background: rgba(255,255,255,.7); }
+    .tree-formation-header.open { background: white; }
+    .chevron { font-size: 10px; color: var(--muted-fg); width: 14px; }
+    .tree-phase { margin-left: 20px; margin-top: 4px; }
+    .tree-phase-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
+      color: var(--muted-fg); padding: 6px 8px 4px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .tree-phase-label .menu { font-size: 14px; cursor: pointer; opacity: .5; }
+    .tree-phase-label .menu:hover { opacity: 1; }
+    .tree-file {
+      display: flex; align-items: center; gap: 8px; padding: 5px 8px 5px 28px;
+      border-radius: 4px; font-size: 13px; cursor: pointer;
+    }
+    .tree-file:hover { background: rgba(255,255,255,.8); }
+    .tree-file.selected { background: #eff6ff; color: var(--primary); font-weight: 500; }
+    .tree-file input[type=checkbox] { accent-color: var(--primary); }
+    .tree-file.dim { color: var(--muted-fg); }
+    .preview-panel {
+      flex: 1; display: flex; flex-direction: column; background: #f8fafc;
+    }
+    .preview-meta {
+      padding: 12px 16px; border-bottom: 1px solid var(--border); background: white;
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+    }
+    .preview-meta h2 { font-size: 14px; font-weight: 600; }
+    .preview-meta .path { font-size: 11px; color: var(--muted-fg); margin-top: 2px; }
+    .preview-meta .actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .preview-body {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      background: #94a3b8; color: white; font-size: 13px; min-height: 320px;
+    }
+    .preview-body iframe-placeholder {
+      width: 100%; height: 100%; min-height: 360px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+    }
+    .selection-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 10px 24px; background: #0f172a; color: white; font-size: 13px;
+    }
+    .selection-bar .actions { display: flex; gap: 8px; }
+    .selection-bar .btn { background: rgba(255,255,255,.1); color: white; border-color: rgba(255,255,255,.2); }
+    .selection-bar .btn-primary { background: var(--primary); border-color: var(--primary); }
+    .formation-collapsed .tree-phase { display: none; }
+    .footnote { text-align: center; font-size: 11px; color: var(--muted-fg); padding: 16px; }
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="app">
+      <!-- Mode application — Bibliothèque active -->
+      <aside class="sidebar">
+        <div class="logo">Qualiopi</div>
+        <div class="tagline">Automatisation formations</div>
+        <a href="#">Formations</a>
+        <a class="active" href="#">Bibliothèque</a>
+        <a href="#">Types de formation</a>
+        <a href="#">Paramètres</a>
+        <div class="sidebar-footer">Anne-Hélène · Déconnexion</div>
+      </aside>
+
+      <div class="main">
+        <header class="page-header">
+          <h1>Bibliothèque</h1>
+          <p>Tous les documents de vos formations, prêts pour l'audit.</p>
+        </header>
+
+        <div class="toolbar">
+          <input class="search" type="search" placeholder="Rechercher une formation ou un fichier…" />
+          <button class="btn btn-ghost">Actualiser</button>
+        </div>
+
+        <div class="drive-split">
+          <div class="tree-panel">
+            <!-- Formation 1 — expanded -->
+            <div class="tree-formation">
+              <div class="tree-formation-header open">
+                <span class="chevron">▼</span>
+                <span>Formation commercial B2B — Acme SA</span>
+              </div>
+              <div class="tree-phase">
+                <div class="tree-phase-label">
+                  avant-la-formation
+                  <span class="menu" title="Exporter ce dossier">⋯</span>
+                </div>
+                <label class="tree-file selected">
+                  <input type="checkbox" checked />
+                  Convention_Acme.pdf
+                </label>
+                <label class="tree-file">
+                  <input type="checkbox" checked />
+                  Reglement_Marc_Dupont.pdf
+                </label>
+                <label class="tree-file">
+                  <input type="checkbox" />
+                  Devis.pdf
+                </label>
+                <div class="tree-phase-label" style="margin-top:8px">
+                  originaux
+                  <span class="menu">⋯</span>
+                </div>
+                <label class="tree-file">
+                  <input type="checkbox" />
+                  Devis_source.docx
+                </label>
+                <div class="tree-phase-label" style="margin-top:8px">
+                  preuves-qualiopi
+                  <span class="menu">⋯</span>
+                </div>
+                <label class="tree-file dim">
+                  <input type="checkbox" disabled />
+                  Preuve_envoi_stagiaire_Marc.pdf
+                </label>
+              </div>
+            </div>
+
+            <!-- Formation 2 — collapsed -->
+            <div class="tree-formation formation-collapsed">
+              <div class="tree-formation-header">
+                <span class="chevron">▶</span>
+                <span>Management d'équipe — Beta Corp</span>
+              </div>
+              <div class="tree-phase">
+                <div class="tree-phase-label">avant-la-formation</div>
+              </div>
+            </div>
+
+            <!-- Formation 3 — empty hint -->
+            <div class="tree-formation formation-collapsed">
+              <div class="tree-formation-header" style="opacity:.55">
+                <span class="chevron">▶</span>
+                <span>Excel débutant — (aucun document)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-panel">
+            <div class="preview-meta">
+              <div>
+                <h2>Convention_Acme.pdf</h2>
+                <p class="path">Formation commercial B2B — Acme SA / avant-la-formation</p>
+                <p class="path" style="margin-top:4px">PDF · 245 Ko · Modifié le 15 mars 2026</p>
+              </div>
+              <div class="actions">
+                <button class="btn">Ouvrir dans un onglet</button>
+                <button class="btn btn-primary">Télécharger</button>
+              </div>
+            </div>
+            <div class="preview-body">
+              <div class="iframe-placeholder">Aperçu PDF (iframe)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barre sélection active (2 fichiers cochés) -->
+        <div class="selection-bar">
+          <span><strong>2 fichiers</strong> sélectionnés</span>
+          <div class="actions">
+            <button class="btn">Télécharger</button>
+            <button class="btn btn-primary">Exporter en ZIP</button>
+            <button class="btn" style="opacity:.7">Tout désélectionner</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="footnote">
+    Maquette Bibliothèque · sidebar Mode App · arborescence formation → phases → fichiers ·
+    originaux séparés · barre sélection ZIP · bibliotheque-spec.md
+  </p>
+</body>
+</html>

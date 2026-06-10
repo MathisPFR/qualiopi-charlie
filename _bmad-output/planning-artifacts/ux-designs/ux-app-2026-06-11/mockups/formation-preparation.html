@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maquette — Préparation formation</title>
+  <!-- Governs: preparation-spec.md · OQ-7 cartes radio · sections empilées -->
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #0f172a;
+      --muted: #f1f5f9;
+      --muted-fg: #64748b;
+      --primary: #2563eb;
+      --primary-fg: #f8fafc;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
+      --warning: #b45309;
+      --warning-bg: #fffbeb;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #e2e8f0;
+      color: var(--foreground);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .viewport {
+      max-width: 1100px; margin: 24px auto;
+      background: var(--muted); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    }
+    .app { display: flex; min-height: 900px; }
+    .sidebar {
+      width: 240px; background: var(--background); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .sidebar-header { padding: 16px 14px 12px; border-bottom: 1px solid var(--border); }
+    .sidebar-header .logo { font-weight: 600; font-size: 14px; color: var(--primary); margin-bottom: 12px; }
+    .back-link { font-size: 13px; color: var(--muted-fg); text-decoration: none; }
+    .context-block { padding: 14px; border-bottom: 1px solid var(--border); }
+    .context-block .title { font-size: 13px; font-weight: 600; }
+    .context-block .client { font-size: 12px; color: var(--muted-fg); margin-top: 4px; }
+    .badge-sm {
+      display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 7px;
+      border-radius: 999px; background: #f1f5f9; color: var(--muted-fg); margin-top: 6px;
+    }
+    .sidebar-nav { flex: 1; padding: 10px 8px; }
+    .sidebar-nav .group-label { font-size: 10px; text-transform: uppercase; color: var(--muted-fg); padding: 4px 10px 6px; }
+    .sidebar-nav a {
+      display: block; padding: 8px 10px; border-radius: 6px; color: var(--muted-fg);
+      text-decoration: none; font-size: 13px;
+    }
+    .sidebar-nav a.active { background: #eff6ff; color: var(--primary); font-weight: 500; }
+    .sidebar-footer { padding: 12px 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted-fg); }
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .content { flex: 1; padding: 24px 28px 100px; overflow: auto; max-width: 720px; }
+    .section-title { font-size: 20px; font-weight: 700; }
+    .section-sub { color: var(--muted-fg); font-size: 13px; margin-top: 4px; margin-bottom: 16px; }
+    .completeness {
+      border-radius: var(--radius); padding: 12px 14px; margin-bottom: 20px;
+      border: 1px solid #fde68a; background: var(--warning-bg); font-size: 13px; color: #92400e;
+    }
+    .completeness a { color: var(--primary); font-weight: 500; }
+    .card {
+      background: var(--background); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px 18px; margin-bottom: 16px;
+    }
+    .card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .card .hint { font-size: 12px; color: var(--muted-fg); margin-bottom: 14px; }
+    .type-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .type-card {
+      border: 2px solid var(--border); border-radius: var(--radius); padding: 12px;
+      cursor: pointer; font-size: 13px; background: white;
+    }
+    .type-card.selected { border-color: var(--primary); background: #eff6ff; }
+    .type-card .radio { font-size: 11px; color: var(--muted-fg); margin-bottom: 4px; }
+    .type-card strong { display: block; font-size: 13px; margin-bottom: 4px; }
+    .type-card span { font-size: 11px; color: var(--muted-fg); }
+    .select-wrap {
+      padding: 12px; background: var(--muted); border-radius: 6px; margin-top: 4px;
+    }
+    .select-wrap label { font-size: 12px; font-weight: 500; display: block; margin-bottom: 6px; }
+    .select-wrap select {
+      width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px;
+    }
+    .preview-box {
+      margin-top: 10px; padding: 10px 12px; background: white; border-radius: 6px;
+      border: 1px solid var(--border); font-size: 12px; color: var(--muted-fg);
+    }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+    .field input, .field select {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stagiaire-row {
+      display: grid; grid-template-columns: 1fr 1fr 1.2fr auto; gap: 8px;
+      align-items: end; margin-bottom: 8px;
+    }
+    .seance-row {
+      display: grid; grid-template-columns: 1fr 0.8fr 0.8fr 1fr auto auto; gap: 8px;
+      align-items: end; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .seance-row:last-of-type { border-bottom: none; }
+    .check-inline { display: flex; align-items: center; gap: 4px; font-size: 11px; white-space: nowrap; padding-bottom: 8px; }
+    .check-inline input { accent-color: var(--primary); }
+    .btn-suggest {
+      font-size: 12px; padding: 6px 12px; margin-bottom: 12px;
+      background: var(--muted); border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+    }
+    .objectif-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .objectif-row input { flex: 1; }
+    .btn-add { font-size: 12px; color: var(--primary); background: none; border: none; cursor: pointer; margin-top: 4px; }
+    .devis-zone {
+      border: 2px dashed #fcd34d; border-radius: var(--radius); padding: 20px; text-align: center;
+      background: var(--warning-bg);
+    }
+    .devis-zone p { font-size: 13px; color: #92400e; margin-bottom: 10px; }
+    .btn {
+      padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; border: 1px solid var(--border);
+      background: white; cursor: pointer;
+    }
+    .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+    .sticky-bar {
+      position: sticky; bottom: 0; background: white; border-top: 1px solid var(--border);
+      padding: 12px 28px; display: flex; gap: 8px; box-shadow: 0 -4px 12px rgba(0,0,0,.04);
+    }
+    .footnote { text-align: center; font-size: 11px; color: var(--muted-fg); padding: 16px; }
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">Qualiopi</div>
+          <a class="back-link" href="#">← Toutes les formations</a>
+        </div>
+        <div class="context-block">
+          <div class="title">Formation commercial B2B</div>
+          <div class="client">Acme SA</div>
+          <span class="badge-sm">Brouillon</span>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="group-label">Cette formation</div>
+          <a href="#">Vue d'ensemble</a>
+          <a class="active" href="#">Préparation</a>
+          <a href="#">Lancement</a>
+          <a href="#">En cours</a>
+          <a href="#">Clôture</a>
+          <a href="#">Documents</a>
+        </nav>
+        <div class="sidebar-footer">Anne-Hélène · Déconnexion</div>
+      </aside>
+
+      <div class="main">
+        <main class="content">
+          <h1 class="section-title">Préparation</h1>
+          <p class="section-sub">Complétez la fiche avant le lancement.</p>
+
+          <div class="completeness">
+            <strong>Il reste 1 élément</strong> avant de pouvoir lancer :
+            <a href="#devis">importer le devis PDF</a>.
+          </div>
+
+          <!-- OQ-7 : modèle du catalogue -->
+          <div class="card">
+            <h3>Modèle du catalogue <span style="font-weight:400;color:var(--muted-fg)">(optionnel)</span></h3>
+            <p class="hint">Le modèle pré-remplit programme et documents par défaut. Dates, stagiaires et devis restent propres à cette session.</p>
+            <div class="type-cards">
+              <div class="type-card">
+                <div class="radio">○</div>
+                <strong>Partir de zéro</strong>
+                <span>Saisie manuelle complète</span>
+              </div>
+              <div class="type-card selected">
+                <div class="radio">●</div>
+                <strong>Utiliser un modèle</strong>
+                <span>Catalogue existant</span>
+              </div>
+              <div class="type-card" style="opacity:.85">
+                <div class="radio">○</div>
+                <strong>Créer un modèle</strong>
+                <span>Réservé admin</span>
+              </div>
+            </div>
+            <div class="select-wrap">
+              <label>Choisir un modèle du catalogue</label>
+              <select>
+                <option selected>Formation commercial B2B (catalogue)</option>
+                <option>Management d'équipe</option>
+                <option>Excel débutant</option>
+              </select>
+              <div class="preview-box">
+                Ce modèle apporte : programme PDF, livret d'accueil, règlement intérieur, emails par défaut.
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Informations de cette formation</h3>
+            <p class="hint">Identité et dates de la session — distinct du modèle catalogue.</p>
+            <div class="field">
+              <label>Intitulé interne</label>
+              <input value="Formation commercial B2B" />
+            </div>
+            <div class="field">
+              <label>Intitulé commercial</label>
+              <input value="Perfectionnement commercial B2B — 3 jours" />
+            </div>
+            <div class="field">
+              <label>Nom client (nom des dossiers)</label>
+              <input value="Acme SA" />
+            </div>
+            <div class="grid-2">
+              <div class="field"><label>Date début</label><input type="date" value="2026-03-15" /></div>
+              <div class="field"><label>Date fin</label><input type="date" value="2026-03-17" /></div>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label>Modalité</label>
+                <select><option>Présentiel</option><option>Distanciel</option><option>Mixte</option></select>
+              </div>
+              <div class="field"><label>Durée (heures)</label><input type="number" value="21" /></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Entreprise cliente</h3>
+            <div class="field"><label>Raison sociale</label><input value="Acme SA" /></div>
+            <div class="field"><label>E-mail entreprise</label><input type="email" value="sophie@acme.fr" /></div>
+          </div>
+
+          <div class="card">
+            <h3>Stagiaires inscrits</h3>
+            <div class="stagiaire-row">
+              <div class="field" style="margin:0"><label>Prénom</label><input value="Marc" /></div>
+              <div class="field" style="margin:0"><label>Nom</label><input value="Dupont" /></div>
+              <div class="field" style="margin:0"><label>E-mail</label><input value="marc.d@exemple.fr" /></div>
+              <button class="btn" style="padding:8px">×</button>
+            </div>
+            <div class="stagiaire-row">
+              <div class="field" style="margin:0"><label>Prénom</label><input value="Julie" /></div>
+              <div class="field" style="margin:0"><label>Nom</label><input value="Bernard" /></div>
+              <div class="field" style="margin:0"><label>E-mail</label><input value="" placeholder="E-mail requis" style="border-color:#f87171" /></div>
+              <button class="btn" style="padding:8px">×</button>
+            </div>
+            <button class="btn-add">+ Ajouter un stagiaire</button>
+          </div>
+
+          <div class="card">
+            <h3>Séances</h3>
+            <p class="hint">Chaque séance apparaît sur les feuilles d'émargement. Cochez « Inclure dans l'émargement » pour les séances à faire signer.</p>
+            <button type="button" class="btn-suggest">Proposer une séance par jour (15 → 17 mars)</button>
+            <div class="seance-row">
+              <div class="field" style="margin:0"><label>Date</label><input type="date" value="2026-03-15" /></div>
+              <div class="field" style="margin:0"><label>Début</label><input type="time" value="09:00" /></div>
+              <div class="field" style="margin:0"><label>Fin</label><input type="time" value="17:00" /></div>
+              <div class="field" style="margin:0"><label>Intitulé</label><input value="Séance 1" /></div>
+              <label class="check-inline"><input type="checkbox" checked /> Émargement</label>
+              <button class="btn" style="padding:8px">×</button>
+            </div>
+            <div class="seance-row">
+              <div class="field" style="margin:0"><label>Date</label><input type="date" value="2026-03-16" /></div>
+              <div class="field" style="margin:0"><label>Début</label><input type="time" value="09:00" /></div>
+              <div class="field" style="margin:0"><label>Fin</label><input type="time" value="17:00" /></div>
+              <div class="field" style="margin:0"><label>Intitulé</label><input value="Séance 2" /></div>
+              <label class="check-inline"><input type="checkbox" checked /> Émargement</label>
+              <button class="btn" style="padding:8px">×</button>
+            </div>
+            <div class="seance-row">
+              <div class="field" style="margin:0"><label>Date</label><input type="date" value="2026-03-17" /></div>
+              <div class="field" style="margin:0"><label>Début</label><input type="time" value="09:00" /></div>
+              <div class="field" style="margin:0"><label>Fin</label><input type="time" value="12:00" /></div>
+              <div class="field" style="margin:0"><label>Intitulé</label><input value="Séance 3" /></div>
+              <label class="check-inline"><input type="checkbox" checked /> Émargement</label>
+              <button class="btn" style="padding:8px">×</button>
+            </div>
+            <button class="btn-add">+ Ajouter une séance</button>
+          </div>
+
+          <div class="card">
+            <h3>Objectifs de formation</h3>
+            <p class="hint">Listés sur les documents générés (convention, programme).</p>
+            <div class="objectif-row">
+              <input value="Maîtriser les techniques de vente B2B" />
+              <button class="btn" style="padding:8px">×</button>
+            </div>
+            <div class="objectif-row">
+              <input value="Savoir gérer les objections clients" />
+              <button class="btn" style="padding:8px">×</button>
+            </div>
+            <button class="btn-add">+ Ajouter un objectif</button>
+          </div>
+
+          <div class="card" id="devis">
+            <h3>Devis entreprise <span style="color:var(--warning)">(obligatoire)</span></h3>
+            <p class="hint">Envoyé à l'entreprise au lancement — pas aux stagiaires.</p>
+            <div class="devis-zone">
+              <p><strong>Devis non importé.</strong> Vous ne pourrez pas lancer sans ce fichier.</p>
+              <button class="btn btn-primary">Choisir un fichier PDF</button>
+            </div>
+          </div>
+        </main>
+
+        <div class="sticky-bar">
+          <button class="btn btn-primary">Enregistrer</button>
+          <button class="btn">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="footnote">Maquette Préparation · OQ-7 cartes radio · preparation-spec.md</p>
+</body>
+</html>

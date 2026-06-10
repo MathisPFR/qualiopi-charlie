@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maquette — Vue d'ensemble formation (sidebar contextuelle)</title>
+  <!-- Governs: formation-ia-vue-ensemble.md · sidebar contextuelle · Vue d'ensemble -->
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #0f172a;
+      --muted: #f1f5f9;
+      --muted-fg: #64748b;
+      --primary: #2563eb;
+      --primary-fg: #f8fafc;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
+      --warning: #b45309;
+      --danger: #b91c1c;
+      --danger-bg: #fef2f2;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--muted);
+      color: var(--foreground);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .app { display: flex; min-height: 100vh; }
+    /* Single contextual sidebar — formation mode */
+    .sidebar {
+      width: 240px; background: var(--background); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .sidebar-header { padding: 16px 14px 12px; border-bottom: 1px solid var(--border); }
+    .sidebar-header .logo { font-weight: 600; font-size: 14px; color: var(--primary); margin-bottom: 12px; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted-fg);
+      text-decoration: none; padding: 6px 8px; margin: -6px -8px; border-radius: 6px;
+    }
+    .back-link:hover { background: var(--muted); color: var(--foreground); }
+    .context-block { padding: 14px; border-bottom: 1px solid var(--border); }
+    .context-block .title {
+      font-size: 13px; font-weight: 600; line-height: 1.35;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .context-block .client { font-size: 12px; color: var(--muted-fg); margin-top: 4px; }
+    .badge-sm {
+      display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 7px;
+      border-radius: 999px; background: #dbeafe; color: #1d4ed8; margin-top: 6px;
+    }
+    .sidebar-nav { flex: 1; padding: 10px 8px; overflow-y: auto; }
+    .sidebar-nav .group-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted-fg); padding: 4px 10px 6px;
+    }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px;
+      color: var(--muted-fg); text-decoration: none; font-size: 13px; margin-bottom: 1px;
+    }
+    .sidebar-nav a:hover { background: var(--muted); color: var(--foreground); }
+    .sidebar-nav a.active { background: #eff6ff; color: var(--primary); font-weight: 500; }
+    .sidebar-nav a .icon { width: 16px; text-align: center; opacity: .7; font-size: 12px; }
+    .sidebar-footer {
+      padding: 12px 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted-fg);
+    }
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .content { flex: 1; padding: 24px 28px; overflow: auto; }
+    .header h1 { font-size: 22px; font-weight: 700; display: inline; }
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px;
+      border-radius: 999px; background: #dbeafe; color: #1d4ed8; vertical-align: middle; margin-left: 8px;
+    }
+    .meta { color: var(--muted-fg); font-size: 13px; margin-top: 6px; }
+    .stepper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 20px 0; }
+    .step {
+      border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; background: var(--background);
+    }
+    .step.done { border-color: #bbf7d0; background: var(--success-bg); }
+    .step.current { border-color: var(--primary); background: #eff6ff; box-shadow: 0 0 0 1px rgba(37,99,235,.15); }
+    .step .num {
+      width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; margin-right: 6px; background: var(--muted); color: var(--muted-fg);
+    }
+    .step.done .num { background: var(--success); color: white; }
+    .step.current .num { background: var(--primary); color: white; }
+    .step .label { font-weight: 500; font-size: 13px; }
+    .step .hint { font-size: 11px; color: var(--muted-fg); margin-top: 4px; padding-left: 28px; }
+    .alert {
+      border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      border: 1px solid #fecaca; background: var(--danger-bg); color: #991b1b; font-size: 13px;
+    }
+    .alert a { color: var(--primary); font-weight: 500; white-space: nowrap; }
+    .card {
+      background: var(--background); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px 18px; margin-bottom: 16px;
+    }
+    .card h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .card .sub { font-size: 12px; color: var(--muted-fg); margin-bottom: 12px; }
+    .next-action { border-color: var(--primary); background: linear-gradient(135deg, #eff6ff 0%, #fff 100%); }
+    .btn {
+      display: inline-block; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
+      text-decoration: none; border: none; cursor: pointer;
+    }
+    .btn-primary { background: var(--primary); color: var(--primary-fg); }
+    .btn-outline { background: var(--background); border: 1px solid var(--border); color: var(--foreground); margin-left: 8px; }
+    .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .tile {
+      background: var(--background); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 14px; cursor: pointer;
+    }
+    .tile:hover { border-color: var(--primary); }
+    .tile .t-label { font-size: 12px; color: var(--muted-fg); margin-bottom: 6px; }
+    .tile .t-value { font-size: 18px; font-weight: 600; }
+    .tile .t-detail { font-size: 11px; margin-top: 4px; }
+    .tile.ok .t-detail { color: var(--success); }
+    .tile.warn .t-detail { color: var(--warning); }
+    .participants { font-size: 13px; }
+    .participants .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .participants .row:last-child { border-bottom: none; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .dot.ok { background: var(--success); }
+    .dot.wait { background: #eab308; }
+    .pattern-note {
+      margin-top: 20px; padding: 10px 14px; border-radius: var(--radius);
+      border: 1px dashed var(--border); background: var(--background); font-size: 11px; color: var(--muted-fg);
+    }
+    .footnote { font-size: 11px; color: var(--muted-fg); margin-top: 16px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- UNE sidebar — mode formation (remplace nav app entièrement) -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">Qualiopi</div>
+        <a class="back-link" href="#">← Toutes les formations</a>
+      </div>
+      <div class="context-block">
+        <div class="title">Formation commercial B2B</div>
+        <div class="client">Acme SA</div>
+        <span class="badge-sm">À lancer</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="group-label">Cette formation</div>
+        <a class="active" href="#"><span class="icon">◉</span> Vue d'ensemble</a>
+        <a href="#"><span class="icon">○</span> Préparation</a>
+        <a href="#"><span class="icon">○</span> Lancement</a>
+        <a href="#"><span class="icon">○</span> En cours</a>
+        <a href="#"><span class="icon">○</span> Clôture</a>
+        <a href="#"><span class="icon">○</span> Documents</a>
+      </nav>
+      <div class="sidebar-footer">Anne-Hélène · Déconnexion</div>
+    </aside>
+
+    <div class="main">
+      <main class="content">
+        <header class="header">
+          <h1>Formation commercial B2B</h1>
+          <span class="badge">À lancer</span>
+          <p class="meta">Acme SA · 15 mars → 17 mars 2026 · Présentiel · 21 h</p>
+        </header>
+
+        <div class="stepper">
+          <div class="step done"><span class="num">✓</span><span class="label">Préparation</span><p class="hint">Devis, stagiaires</p></div>
+          <div class="step current"><span class="num">2</span><span class="label">Lancement</span><p class="hint">Emails, signatures</p></div>
+          <div class="step"><span class="num">3</span><span class="label">En cours</span><p class="hint">Émargements</p></div>
+          <div class="step"><span class="num">4</span><span class="label">Clôture</span><p class="hint">Certificats, évaluations</p></div>
+        </div>
+
+        <div class="alert">
+          <span><strong>2 emails n'ont pas pu être envoyés.</strong> Vérifiez les adresses et relancez depuis Lancement.</span>
+          <a href="#">Voir et corriger →</a>
+        </div>
+
+        <div class="card next-action">
+          <h3>Prochaine action</h3>
+          <p class="sub">Le lancement a été lancé mais 2 envois ont échoué. Corrigez puis relancez.</p>
+          <a class="btn btn-primary" href="#">Aller au lancement — relancer les emails</a>
+          <a class="btn btn-outline" href="#">Modifier la fiche</a>
+        </div>
+
+        <div class="tiles">
+          <div class="tile warn">
+            <div class="t-label">Emails</div>
+            <div class="t-value">3/5</div>
+            <div class="t-detail">2 échecs</div>
+          </div>
+          <div class="tile warn">
+            <div class="t-label">Signatures</div>
+            <div class="t-value">1/4</div>
+            <div class="t-detail">3 en attente</div>
+          </div>
+          <div class="tile ok">
+            <div class="t-label">Formulaires</div>
+            <div class="t-value">2/8</div>
+            <div class="t-detail">En cours</div>
+          </div>
+          <div class="tile">
+            <div class="t-label">Émargements</div>
+            <div class="t-value">—</div>
+            <div class="t-detail" style="color:var(--muted-fg)">Après passage en cours</div>
+          </div>
+        </div>
+
+        <div class="card participants">
+          <h3>Participants</h3>
+          <p class="sub">Qui a répondu, signé, ou est en attente</p>
+          <div class="row">
+            <span><span class="dot wait"></span>Sophie Martin — Entreprise</span>
+            <span style="color:var(--muted-fg)">Formulaire OK · Signature en attente</span>
+          </div>
+          <div class="row">
+            <span><span class="dot ok"></span>Marc Dupont — Stagiaire</span>
+            <span style="color:var(--muted-fg)">Email OK · Formulaire en attente</span>
+          </div>
+          <div class="row">
+            <span><span class="dot" style="background:var(--danger)"></span>Julie Bernard — Stagiaire</span>
+            <span style="color:var(--danger)">Email en échec</span>
+          </div>
+          <p style="margin-top:10px;font-size:12px;"><a href="#" style="color:var(--primary)">Voir le détail complet →</a></p>
+        </div>
+
+        <div class="card">
+          <h3>Documents</h3>
+          <p class="sub">24 fichiers · Dernière mise à jour il y a 2 h</p>
+          <a class="btn btn-outline" href="#" style="margin-left:0">Ouvrir les documents de cette formation</a>
+        </div>
+
+        <div class="pattern-note">
+          <strong>Pattern nav :</strong> une seule sidebar. Sur la liste des formations → entrées app (Formations, Bibliothèque, Types, Paramètres).
+          Dès qu'on ouvre une formation → la sidebar bascule sur les 6 sections + « ← Toutes les formations ».
+          Implémentation : shadcn <code>Sidebar</code> + swap <code>SidebarGroup</code> via <code>usePathname()</code>.
+        </div>
+        <p class="footnote">Maquette v2 · sidebar contextuelle · couleurs placeholder (thème client via Paramètres)</p>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

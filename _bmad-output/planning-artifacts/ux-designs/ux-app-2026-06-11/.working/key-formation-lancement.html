@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maquette — Lancement formation</title>
+  <!-- Governs: formation-lancement-spec.md · AlertDialog · FR-20–25 -->
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #0f172a;
+      --muted: #f1f5f9;
+      --muted-fg: #64748b;
+      --primary: #2563eb;
+      --primary-fg: #f8fafc;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
+      --warning: #b45309;
+      --warning-bg: #fffbeb;
+      --danger: #b91c1c;
+      --danger-bg: #fef2f2;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #e2e8f0;
+      color: var(--foreground);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .page-label {
+      text-align: center; padding: 16px; font-size: 12px; font-weight: 600;
+      color: var(--muted-fg); text-transform: uppercase; letter-spacing: .06em;
+    }
+    .viewport {
+      max-width: 1100px; margin: 0 auto 32px; background: var(--muted);
+      border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    }
+    .app { display: flex; min-height: 620px; }
+    .sidebar {
+      width: 240px; background: var(--background); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .sidebar-header { padding: 16px 14px 12px; border-bottom: 1px solid var(--border); }
+    .sidebar-header .logo { font-weight: 600; font-size: 14px; color: var(--primary); margin-bottom: 12px; }
+    .back-link { font-size: 13px; color: var(--muted-fg); text-decoration: none; }
+    .context-block { padding: 14px; border-bottom: 1px solid var(--border); }
+    .context-block .title { font-size: 13px; font-weight: 600; }
+    .context-block .client { font-size: 12px; color: var(--muted-fg); margin-top: 4px; }
+    .badge-sm {
+      display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 7px;
+      border-radius: 999px; background: #fef3c7; color: #92400e; margin-top: 6px;
+    }
+    .sidebar-nav { flex: 1; padding: 10px 8px; }
+    .sidebar-nav .group-label { font-size: 10px; text-transform: uppercase; color: var(--muted-fg); padding: 4px 10px 6px; }
+    .sidebar-nav a {
+      display: block; padding: 8px 10px; border-radius: 6px; color: var(--muted-fg);
+      text-decoration: none; font-size: 13px;
+    }
+    .sidebar-nav a.active { background: #eff6ff; color: var(--primary); font-weight: 500; }
+    .sidebar-footer { padding: 12px 14px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted-fg); }
+    .main { flex: 1; position: relative; min-width: 0; }
+    .content { padding: 24px 28px; overflow: auto; max-height: 620px; }
+    .section-title { font-size: 20px; font-weight: 700; }
+    .section-sub { color: var(--muted-fg); font-size: 13px; margin-top: 4px; margin-bottom: 20px; }
+    .card {
+      background: var(--background); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px 18px; margin-bottom: 16px;
+    }
+    .card h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex; align-items: flex-start; gap: 10px; padding: 8px 0;
+      border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .check-ok {
+      width: 20px; height: 20px; border-radius: 50%; background: var(--success); color: white;
+      display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0;
+    }
+    .recap-block { margin-bottom: 14px; }
+    .recap-block h4 { font-size: 12px; font-weight: 600; color: var(--muted-fg); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 6px; }
+    .recap-block ul { padding-left: 18px; font-size: 13px; color: var(--foreground); }
+    .recap-block li { margin-bottom: 4px; }
+    .recap-note { font-size: 12px; color: var(--muted-fg); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .btn {
+      display: inline-block; padding: 9px 18px; border-radius: 6px; font-size: 13px; font-weight: 500;
+      text-decoration: none; border: none; cursor: pointer;
+    }
+    .btn-primary { background: var(--primary); color: var(--primary-fg); }
+    .btn-outline { background: var(--background); border: 1px solid var(--border); color: var(--foreground); margin-left: 8px; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .btn-danger-outline { border-color: #fecaca; color: var(--danger); background: white; }
+    /* Dialog overlay */
+    .overlay {
+      position: absolute; inset: 0; background: rgba(15,23,42,.45);
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .dialog {
+      background: var(--background); border-radius: 10px; border: 1px solid var(--border);
+      max-width: 440px; width: 100%; padding: 24px; box-shadow: 0 16px 48px rgba(0,0,0,.2);
+    }
+    .dialog h2 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .dialog p { font-size: 13px; color: var(--muted-fg); margin-bottom: 14px; }
+    .dialog ul { font-size: 13px; padding-left: 18px; margin-bottom: 18px; }
+    .dialog ul li { margin-bottom: 4px; }
+    .dialog-warn {
+      background: var(--warning-bg); border: 1px solid #fde68a; border-radius: 6px;
+      padding: 10px 12px; font-size: 12px; color: #92400e; margin-bottom: 16px;
+    }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    /* Post-launch table */
+    .banner-ok {
+      border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px;
+      border: 1px solid #bbf7d0; background: var(--success-bg); color: #166534; font-size: 13px;
+    }
+    .banner-warn {
+      border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px;
+      border: 1px solid #fde68a; background: var(--warning-bg); color: #92400e; font-size: 13px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 8px 10px; background: var(--muted); color: var(--muted-fg); font-size: 11px; font-weight: 600; }
+    td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .status-ok { color: var(--success); font-weight: 500; }
+    .status-wait { color: var(--warning); }
+    .status-err { color: var(--danger); font-weight: 500; }
+    .err-detail { font-size: 11px; color: var(--danger); margin-top: 4px; }
+    .footnote { text-align: center; font-size: 11px; color: var(--muted-fg); padding: 24px; }
+  </style>
+</head>
+<body>
+
+  <p class="page-label">État A — Prêt à lancer (dialog de confirmation ouvert)</p>
+  <div class="viewport">
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">Qualiopi</div>
+          <a class="back-link" href="#">← Toutes les formations</a>
+        </div>
+        <div class="context-block">
+          <div class="title">Formation commercial B2B</div>
+          <div class="client">Acme SA</div>
+          <span class="badge-sm">Brouillon</span>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="group-label">Cette formation</div>
+          <a href="#">Vue d'ensemble</a>
+          <a href="#">Préparation</a>
+          <a class="active" href="#">Lancement</a>
+          <a href="#">En cours</a>
+          <a href="#">Clôture</a>
+          <a href="#">Documents</a>
+        </nav>
+        <div class="sidebar-footer">Anne-Hélène · Déconnexion</div>
+      </aside>
+      <div class="main">
+        <main class="content" style="filter: blur(1px); opacity: .85;">
+          <h1 class="section-title">Lancement</h1>
+          <p class="section-sub">Vérifiez ce qui va partir avant de confirmer.</p>
+          <div class="card">
+            <h3>Prérequis</h3>
+            <ul class="checklist">
+              <li><span class="check-ok">✓</span> Devis importé</li>
+              <li><span class="check-ok">✓</span> 3 stagiaires avec email valide</li>
+              <li><span class="check-ok">✓</span> Entreprise renseignée (Sophie Martin — sophie@acme.fr)</li>
+              <li><span class="check-ok">✓</span> Fiche formation complète</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Ce qui va se passer</h3>
+            <div class="recap-block">
+              <h4>Documents générés</h4>
+              <ul>
+                <li>Convention, CGV, règlements intérieurs (×3), livrets d'accueil</li>
+              </ul>
+            </div>
+            <div class="recap-block">
+              <h4>Emails stagiaires (3)</h4>
+              <ul>
+                <li>Pièces jointes : règlement intérieur, livret</li>
+                <li>Lien formulaire « besoins stagiaire »</li>
+                <li>Demande de signature — règlement intérieur</li>
+              </ul>
+            </div>
+            <div class="recap-block">
+              <h4>Email entreprise (1)</h4>
+              <ul>
+                <li>Pièces jointes : convention, devis, CGV</li>
+                <li>Lien formulaire « besoins entreprise »</li>
+                <li>Demandes de signature — convention et devis</li>
+              </ul>
+            </div>
+            <p class="recap-note">Des preuves Qualiopi seront enregistrées automatiquement pour chaque envoi.</p>
+          </div>
+          <div>
+            <button class="btn btn-primary">Vérifier et lancer</button>
+            <button class="btn btn-outline">Retour à la préparation</button>
+          </div>
+        </main>
+        <div class="overlay">
+          <div class="dialog" role="alertdialog" aria-labelledby="dlg-title">
+            <h2 id="dlg-title">Confirmer le lancement ?</h2>
+            <p>Des emails réels seront envoyés. Les stagiaires et l'entreprise recevront leurs documents et les liens de signature.</p>
+            <div class="dialog-warn">Cette action ne peut pas être annulée. En cas d'erreur, vous pourrez relancer les envois un par un.</div>
+            <ul>
+              <li>Marc Dupont — marc.d@…</li>
+              <li>Julie Bernard — julie.b@…</li>
+              <li>Paul Leroy — paul.l@…</li>
+              <li>Sophie Martin (entreprise) — sophie@acme.fr</li>
+            </ul>
+            <div class="dialog-actions">
+              <button class="btn btn-outline">Annuler</button>
+              <button class="btn btn-primary">Confirmer et lancer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="page-label">État B — Après lancement (erreurs partielles · relance unitaire)</p>
+  <div class="viewport">
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">Qualiopi</div>
+          <a class="back-link" href="#">← Toutes les formations</a>
+        </div>
+        <div class="context-block">
+          <div class="title">Formation commercial B2B</div>
+          <div class="client">Acme SA</div>
+          <span class="badge-sm" style="background:#dbeafe;color:#1d4ed8;">À lancer</span>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="group-label">Cette formation</div>
+          <a href="#">Vue d'ensemble</a>
+          <a href="#">Préparation</a>
+          <a class="active" href="#">Lancement</a>
+          <a href="#">En cours</a>
+          <a href="#">Clôture</a>
+          <a href="#">Documents</a>
+        </nav>
+        <div class="sidebar-footer">Anne-Hélène · Déconnexion</div>
+      </aside>
+      <main class="content">
+        <h1 class="section-title">Lancement</h1>
+        <p class="section-sub">Suivi des envois et signatures après lancement.</p>
+
+        <div class="banner-warn">
+          <strong>Lancement terminé avec 1 erreur.</strong> 3 emails envoyés sur 4. Corrigez et relancez l'envoi en échec.
+        </div>
+
+        <div class="card" style="padding:0; overflow:hidden;">
+          <table>
+            <thead>
+              <tr>
+                <th>Destinataire</th>
+                <th>Email</th>
+                <th>Documents</th>
+                <th>Signature</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Sophie Martin</strong><br><span style="font-size:11px;color:var(--muted-fg)">Entreprise</span></td>
+                <td class="status-ok">✓ Envoyé</td>
+                <td class="status-ok">✓ OK</td>
+                <td class="status-wait">En attente</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><strong>Marc Dupont</strong><br><span style="font-size:11px;color:var(--muted-fg)">Stagiaire</span></td>
+                <td class="status-ok">✓ Envoyé</td>
+                <td class="status-ok">✓ OK</td>
+                <td class="status-wait">En attente</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><strong>Julie Bernard</strong><br><span style="font-size:11px;color:var(--muted-fg)">Stagiaire</span></td>
+                <td class="status-err">✗ Échec
+                  <div class="err-detail">Adresse invalide — vérifiez l'email dans Préparation</div>
+                </td>
+                <td class="status-ok">✓ OK</td>
+                <td>—</td>
+                <td><button class="btn btn-sm btn-danger-outline">Relancer l'email</button></td>
+              </tr>
+              <tr>
+                <td><strong>Paul Leroy</strong><br><span style="font-size:11px;color:var(--muted-fg)">Stagiaire</span></td>
+                <td class="status-ok">✓ Envoyé</td>
+                <td class="status-ok">✓ OK</td>
+                <td class="status-wait">En attente</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>Documents générés</h3>
+          <p style="font-size:13px;color:var(--muted-fg);margin-bottom:10px;">12 fichiers créés dans « avant-la-formation » et « preuves-qualiopi ».</p>
+          <a href="#" style="font-size:13px;color:var(--primary);">Voir tous les documents →</a>
+        </div>
+
+        <p style="font-size:12px;color:var(--muted-fg);">
+          <a href="#" style="color:var(--muted-fg);">Relancer le lancement complet</a> — réservé aux cas exceptionnels
+        </p>
+      </main>
+    </div>
+  </div>
+
+  <p class="footnote">Maquette Lancement · shadcn AlertDialog + Table · couleurs placeholder · formation-lancement-spec.md</p>
+</body>
+</html>
