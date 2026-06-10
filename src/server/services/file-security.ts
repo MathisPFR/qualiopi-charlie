@@ -2,11 +2,35 @@ import path from "path";
 
 const MAX_DEVIS_BYTES = 15 * 1024 * 1024;
 
+/** Fichier issu d'un FormData (navigateur ou Node/undici — pas de global `File` côté serveur). */
+export type FormDataUpload = {
+  name: string;
+  type?: string;
+  arrayBuffer(): Promise<ArrayBuffer>;
+};
+
+export function getFormDataFile(
+  formData: FormData,
+  field = "file"
+): FormDataUpload | null {
+  const value = formData.get(field);
+  if (!value || typeof value !== "object") return null;
+  if (
+    !("arrayBuffer" in value) ||
+    typeof value.arrayBuffer !== "function" ||
+    !("name" in value) ||
+    typeof value.name !== "string"
+  ) {
+    return null;
+  }
+  return value as FormDataUpload;
+}
+
 export function isPdfBuffer(buf: Buffer): boolean {
   return buf.length >= 5 && buf.subarray(0, 5).toString("ascii") === "%PDF-";
 }
 
-export function assertPdfUpload(file: File, buf: Buffer): void {
+export function assertPdfUpload(file: FormDataUpload, buf: Buffer): void {
   if (!file.name.toLowerCase().endsWith(".pdf")) {
     throw new Error("Seuls les fichiers PDF sont acceptés pour le devis.");
   }

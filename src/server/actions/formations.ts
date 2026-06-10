@@ -22,7 +22,10 @@ import {
   writeFile,
   removeFormationStorage,
 } from "@/server/services/storage";
-import { assertPdfUpload } from "@/server/services/file-security";
+import {
+  assertPdfUpload,
+  getFormDataFile,
+} from "@/server/services/file-security";
 
 async function requireAuth() {
   const session = await auth();
@@ -311,8 +314,8 @@ export async function updateFormationStatut(id: string, statut: FormationStatut)
 
 export async function uploadDevis(formationId: string, formData: FormData) {
   await requireAuth();
-  const file = formData.get("file");
-  if (!file || !(file instanceof File)) {
+  const file = getFormDataFile(formData);
+  if (!file) {
     throw new Error("Fichier devis manquant.");
   }
 
@@ -443,7 +446,7 @@ export async function actionTestEmail() {
 
 export async function uploadProgramme(formationId: string, formData: FormData) {
   await requireAuth();
-  const file = formData.get("file") as File | null;
+  const file = getFormDataFile(formData);
   if (!file) throw new Error("Fichier manquant");
   const formation = await prisma.formation.findUnique({ where: { id: formationId } });
   if (!formation) throw new Error("Formation introuvable");
