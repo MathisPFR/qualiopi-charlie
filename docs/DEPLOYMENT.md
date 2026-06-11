@@ -2,11 +2,14 @@
 
 ## Modèle
 
-- Un **repo** déployé par client sur un **VPS unique**
-- Tout tourne dans **Docker Compose** : app, PostgreSQL, Gotenberg, Adminer
-- `config/client.json` : nom org, email, préfixe stockage
-- `.env` : secrets (DB, auth, email, cron)
-- Fichiers générés dans `storage/` sur le même VPS (volume bind-mount)
+- Un **repo Git par client** (GitHub/GitLab) sur un **VPS unique**
+- **Production MVP :** [Dokploy](https://dokploy.com/) — 1 projet par client, Docker Compose, domaine + HTTPS via Traefik intégré
+- **Onboarding nouveau client :** voir **[ONBOARDING-CLIENT.md](./ONBOARDING-CLIENT.md)** (checklist complète R2, Brevo, Documenso)
+- **Développement local :** Docker Compose manuel (`./scripts/docker-up.sh`) — pas de Dokploy requis
+- Stack : app, PostgreSQL, Gotenberg, **Documenso** (prod) ; Adminer en dev seulement
+- `config/client.json` : identité org bootstrap
+- `.env` Dokploy : secrets **infra** (DB, auth, R2, cron) — **Brevo configuré in-app**
+- Fichiers en **Cloudflare R2** (compte client) ; `storage/` local en dev uniquement
 
 ## Prérequis VPS
 

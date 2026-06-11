@@ -2,7 +2,7 @@
 title: "PRD — Qualiopi Automation System"
 status: final
 created: 2026-06-10
-updated: 2026-06-10
+updated: 2026-06-11
 working_title: "Système d'automatisation Qualiopi"
 commercial_name: TBD
 ---
@@ -25,11 +25,13 @@ Many SaaS tools already automate Qualiopi administrative work. This product comp
 
 The system is the **operational interface for a Formation** — the place where training organizations create and manage formations, trigger document generation, send emails, collect evaluations, store audit evidence, and (in v1) manage electronic signatures. It must be **reliable, user-friendly, and maintainable** — addressing the fragility and maintenance burden of the prior Notion + Make stack.
 
-**First user:** Anne-Hélène (collaborator, former employer) — internal production use on her own formations.
+**MVP intent (locked 2026-06-11):** The v1 deliverable is a **portable product core** — one codebase and workflow engine that any client instance runs unchanged. Each deployed instance is **configured**, not forked: its own templates, documents, Formation Types, mandatory/optional rules, branding, and operational preferences live in **instance settings and data**, not in client-specific code paths. Anne-Hélène's agency is the **first reference profile** used to build and validate that core end-to-end; it is not the product definition. Features that only work for one client's exact document set without going through the configuration layer are out of scope for MVP acceptance.
+
+**Reference instance:** Anne-Hélène (collaborator, former employer) — first production validation of the portable core on a real Qualiopi workflow.
 
 **Commercial model:** Small to medium training organizations (or companies that deliver training). Setup (~€4,000) covers VPS deployment, onboarding meetings, and client-specific configuration (documents, modules, signature options). Ongoing support (~€80/month) includes maintenance, small module additions, VPS costs, and direct access to Root.
 
-**Deployment model:** One GitHub repo, **one instance per client** on their VPS — not multi-tenant SaaS.
+**Deployment model:** **One Git repo per client** (GitHub or GitLab) containing the product core plus that client's instance configuration (`config/`, `templates/`, `.env`). Root installs and configures each repo; the client's VPS runs that repo via Docker Compose — not multi-tenant SaaS. Core updates flow from the upstream **qualiopi-core** repo into each client repo (merge strategy — see architecture research bloc A).
 
 ### 1.1 Differentiation
 
@@ -60,15 +62,40 @@ All Make-parity workflows from the brownfield POC, **plus electronic signatures 
 
 `[ASSUMPTION: Signature provider is not Zoho Sign by default — evaluate free/self-hosted options first.]`
 
-### 1.4 Success Criteria (v1)
+### 1.4 Product shape: Core vs Client Instance
+
+| Layer | What it is | MVP requirement |
+|-------|------------|-----------------|
+| **Product core** | Shared codebase: workflows, admin UI shell, public forms, auth, PDF/email engines, Qualiopi evidence model | Complete, testable, deployable without Anne-Hélène-specific hardcoding |
+| **Client instance** | One VPS deployment = one training organization: DB, **Cloudflare R2 bucket** (fichiers), `config/`, templates, settings, Formation Types catalog | Bootstrapped at onboarding; adjustable in-app by ADMIN where specified (§4.8) |
+| **Reference profile** | Anne-Hélène's agency — real workflows, real templates, real rules | Used to prove the core; converted into **configuration**, not product exceptions |
+
+**Per-instance customization (v1 — must be parameter-driven, not code forks):**
+
+| Dimension | Configured how | Who changes it |
+|-----------|----------------|----------------|
+| Document templates (convention, CGV, certificats, preuves, etc.) | `templates/` + Formation Type associations | ADMIN; integrator at setup |
+| Mandatory / optional workflow rules (devis, programme on launch, émargement mode) | Deployment config + in-app Settings (FR-32, FR-33) | ADMIN |
+| Formation Types catalog | In-app (FR-6–FR-12) | ADMIN |
+| Org identity (name, email, storage prefix, public URL) | `config/client.json` + Settings | Integrator + ADMIN |
+| Email copy and sender identity | Template files + `MAIL_FROM` / org settings | ADMIN / integrator |
+| Branding / UX accents (logo, colors) | Instance Settings `[NOTE: depth TBD in architecture — at minimum org name; visual identity per UX decision-log]` | ADMIN |
+| Signature provider credentials | Instance env / settings | Integrator |
+
+**Anti-patterns for MVP:**
+- Hardcoding Anne-Hélène's (or Charlie Agence's) template names, folder paths, or workflow branches in application code.
+- Shipping a feature that cannot be turned off or tuned per instance when another client does not need it.
+- Treating "works on Anne-Hélène's VPS" as done without demonstrating a **second instance** can be configured from the same build.
+
+### 1.5 Success Criteria (v1)
 
 The v1 release is successful when:
 
-1. **Anne-Hélène** manages 100% of her formations in the system (no parallel Notion/Make process).
-2. **Three paying clients** are deployed on their own VPS instances with client-specific configuration.
+1. **Portable core validated:** The reference instance (Anne-Hélène) runs 100% of formations with no parallel Notion/Make process — proving the core on real data.
+2. **Replicable deployment:** At least **three paying client instances** are deployed from the **same codebase** with distinct templates, settings, and Formation Types — without per-client code changes.
 3. **Zero audit incidents** attributable to missing documents, failed sends, or disorganized evidence during Qualiopi audits.
 
-_Counter-metric: raw feature count — do not optimize for matching every SaaS checkbox; optimize for reliability and client-fit._
+_Counter-metrics: (a) raw feature count — optimize for reliability and client-fit; (b) building for one agency's quirks instead of the configuration model._
 
 ---
 
@@ -531,26 +558,41 @@ Forms pre-fill stagiaire/entreprise data already known; user completes missing r
 
 ---
 
-### 4.8 Client settings (defaults + override)
+### 4.8 Client instance settings (defaults + override)
 
-**Description:** ADMIN configures instance defaults at deployment; ADMIN (and optionally documented OPERATEUR limits) adjusts in-app what is mandatory vs optional — e.g. Devis required before launch, programme email on launch, émargement mode. Realizes UJ-1 configuration intent.
+**Description:** Each deployed instance is a **configured copy of the product core** — not a bespoke fork. The integrator seeds deployment defaults; the client ADMIN adjusts operational rules, templates, and presentation in-app. This is how one codebase serves every training organization. Realizes §1.4 and UJ-1 configuration intent.
 
 **Functional Requirements:**
 
 #### FR-32: Deployment defaults
 
-Integrator can set initial client settings via deployment config (org name, email, template paths, default mandatory rules). Realizes commercial onboarding.
+Integrator can bootstrap a fresh client instance via deployment config and file assets — without modifying application source. Minimum bootstrap surface:
+
+- Org identity: name, contact email, public URL, storage prefix
+- Template set: DOCX files for documents this client uses
+- Default mandatory/optional workflow rules
+- Email sender configuration (provider credentials via env; identity via config)
+
+Realizes commercial onboarding and §1.4 replicable deployment.
 
 **Consequences (testable):**
-- Fresh instance boots with client-specific defaults without code change.
+- Fresh instance boots with client-specific defaults without code change or rebuild per client.
+- Anne-Hélène's reference profile is expressible entirely as bootstrap config + in-app data — no special-case code path.
 
 #### FR-33: In-app settings override
 
-An ADMIN can override mandatory/optional rules in a Settings screen; changes apply to **new** operations according to documented rules (not retroactive to completed Formations). Realizes UJ-1.
+An ADMIN can manage instance configuration in a Settings area. Changes apply to **new** operations according to documented rules (not retroactive to completed Formations). Realizes UJ-1 and per-client autonomy.
+
+**Minimum v1 settings surface:**
+- Workflow rules: programme send on launch, Devis requirement, émargement mode default
+- Org presentation: org name, logo, accent colors (where UX specifies)
+- Template management: upload/replace document templates used by workflows
+- Email template overrides (subjects/bodies) where not tied to Formation Type
 
 **Consequences (testable):**
 - OPERATEUR cannot access settings UI.
-- Settings include at minimum: programme send on launch, Devis requirement, émargement mode default.
+- A second client instance can diverge from the reference profile using Settings + templates alone.
+- No feature requires editing `src/` to adapt a client's documents or operational preferences.
 
 ---
 
@@ -564,15 +606,18 @@ An ADMIN can override mandatory/optional rules in a Settings screen; changes app
 
 ## 6. MVP Scope
 
+**North star:** Deliver the **product core** (§1.4) — validated on the Anne-Hélène reference instance, **replicable** to any client via configuration.
+
 ### 6.1 In Scope (v1)
 
+- **Portable core:** shared workflows, UI shell, forms, auth, PDF/email engines — no per-client code forks
+- **Instance configuration layer:** deployment bootstrap (FR-32) + ADMIN Settings (FR-33) including templates and workflow rules
 - Admin dashboard with roles ADMIN and OPERATEUR
-- Formation Type catalog (ADMIN) with propagation rules (FR-8–FR-10)
+- Formation Type catalog per instance (ADMIN) with propagation rules (FR-8–FR-10)
 - Formation lifecycle and document library
 - Lancement, émargements (PDF + digital signature), fin de formation, éval à froid
 - Public forms with pre-fill (stagiaire + entreprise)
-- E-signatures on launch documents (provider TBD)
-- Client settings: deployment defaults + ADMIN in-app override
+- E-signatures on launch documents (provider TBD; configurable per instance)
 - Qualiopi proof PDFs per send
 - One instance per client on VPS; Dokploy/GitHub deploy (architecture detail)
 
@@ -588,14 +633,15 @@ An ADMIN can override mandatory/optional rules in a Settings screen; changes app
 
 **Primary**
 
-- **SM-1:** Anne-Hélène runs 100% of Formations in the system with no parallel Notion/Make process — target: within 3 months of v1 deploy. Validates FR-13–FR-27.
-- **SM-2:** Three paying client instances deployed with client-specific configuration — target: within 6 months. Validates FR-32, commercial model §1.
+- **SM-1:** Reference instance (Anne-Hélène) runs 100% of Formations with no parallel Notion/Make process — validates the **product core** on real workflows. Target: within 3 months. Validates FR-13–FR-27.
+- **SM-2:** Three paying client instances deployed from the **same build** with distinct templates, settings, and Formation Types — **no per-client code changes**. Target: within 6 months. Validates FR-32, FR-33, §1.4.
 - **SM-3:** Zero Qualiopi audit incidents due to missing documents, failed sends, or disorganized evidence — ongoing. Validates FR-26, FR-28, document library FR-16.
 
 **Counter-metrics (do not optimize)**
 
 - **SM-C1:** Feature parity with every market SaaS — optimize for reliability and client-fit instead.
 - **SM-C2:** Number of Formation Types in catalog — quality over quantity.
+- **SM-C3:** Shipping Anne-Hélène-specific shortcuts that block replicating the instance for another client.
 
 ## 8. Open Questions
 
@@ -610,9 +656,17 @@ _Deferred to downstream workflows — not blockers for UX or epic breakdown._
 | OQ-5 | Production email provider (Resend vs SMTP per client) | Architecture | `bmad-create-architecture` |
 | OQ-6 | Émargement digital signature — per-session UX detail | UX | `bmad-ux` |
 | OQ-7 | Formation Type inline-create UX (select vs wizard) | UX | `bmad-ux` |
+| OQ-8 | Instance branding depth (logo/colors only vs richer UX theming) | Architecture + UX | `bmad-create-architecture` |
+| OQ-9 | Template management UX (file upload only vs in-app DOCX variable preview) | Architecture | `bmad-create-architecture` |
+| OQ-10 | Core → client repo sync strategy (upstream remote, branch model, release tags) | Architecture | Bloc A research |
+| OQ-11 | **Integrator dashboard** (Root): central view of all client instances — health, versions, alerts | Architecture v2 | After MVP |
+| OQ-12 | R2 bucket layout (one bucket per client vs prefixes) ; versioning/lifecycle rules | Architecture | `bmad-create-architecture` |
 
 ## 9. Assumptions Index
 
+- `[ASSUMPTION: MVP = portable product core + per-instance configuration; Anne-Hélène is reference profile, not product scope boundary.]`
+- `[ASSUMPTION: Production file storage uses Cloudflare R2 (S3 API) as primary store; local storage/ is dev-only. POC storage code will be replaced.]`
+- `[ASSUMPTION: Hybrid document pipeline — default HTML catalog templates (Gotenberg) with per-instance branding; optional custom DOCX upload. Zero paid docxtemplater modules.]`
 - `[ASSUMPTION: Signature provider is not Zoho Sign by default — evaluate free/self-hosted options first.]`
 - `[ASSUMPTION: Optionally links an existing Formation Type — see §2.4 — or creates without one.]`
 - `[ASSUMPTION: Per-client émargement variants — e.g. one shared PDF — configurable later; v1 = one PDF per stagiaire.]`
