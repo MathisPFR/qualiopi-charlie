@@ -4,7 +4,7 @@ baseline_commit: 484dd418770d3d3c8d39f5fade377d228b5f3392
 
 # Story 1.1: Initialiser shadcn/ui et composants de base
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -65,6 +65,18 @@ so that **all epics share a common UI foundation**.
   - [x] Run `npm run lint` and `npm run build`
   - [x] Smoke-check pages still render: `/login`, `/` (dashboard list), one formation detail page
   - [x] Do **not** refactor `DashboardNav` → `AppSidebar` in this story (Story 4.1 scope)
+
+### Review Findings
+
+- [x] [Review][Patch] Dockerfile incompatible avec `distDir` [`Dockerfile:44-45`, `next.config.ts:4`] — corrigé : COPY depuis `node_modules/.cache/next-build/`
+- [x] [Review][Patch] Retirer `sonner` non utilisé [`package.json`] — retiré
+- [x] [Review][Patch] Synchroniser deps Docker au démarrage [`scripts/docker-entrypoint.sh`] — resync via hash `package-lock.json`
+- [x] [Review][Patch] Ajouter newline finale [`components.json`]
+- [x] [Review][Defer] Régression tailles Button/Input (h-10→h-9) — alignement shadcn new-york, pas de break compile
+- [x] [Review][Defer] Badge `success` visuel changé (green-100→emerald-600) — variant POC réintroduit, style shadcn assumé
+- [x] [Review][Defer] Fixes TS hors scope UI (`page.tsx`, `form-template-data.ts`) — nécessaires pour build green
+- [x] [Review][Defer] `distDir` workaround + `tsconfig` cache paths — dette infra WSL/Docker, hors AC stricts
+- [x] [Review][Defer] Composants installés sans usage app yet — fondation story, usage prévu epics 4–9
 
 ## Dev Notes
 
@@ -250,6 +262,8 @@ Composer (Cursor Agent)
 - `tailwind.config.ts`
 - `tsconfig.json`
 - `scripts/restart-dev.sh`
+- `scripts/docker-entrypoint.sh`
+- `Dockerfile`
 - `src/app/globals.css`
 - `src/app/layout.tsx`
 - `src/app/f/[slug]/[formType]/page.tsx`
@@ -274,3 +288,4 @@ Composer (Cursor Agent)
 ## Change Log
 
 - 2026-06-14 — Story 1.1 implemented: shadcn/ui formalized (new-york), 9 component groups installed, Toaster wired, build green
+- 2026-06-14 — Code review patches: Dockerfile distDir, docker-entrypoint deps sync, remove sonner
