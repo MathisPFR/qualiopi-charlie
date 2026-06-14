@@ -29,6 +29,21 @@ async function main() {
     },
   });
 
+  const operateurEmail =
+    process.env.OPERATEUR_EMAIL ?? "operateur@charlie.local";
+  const operateurPassword = process.env.OPERATEUR_PASSWORD ?? "operateur123";
+  const operateurHash = await bcrypt.hash(operateurPassword, 10);
+  await prisma.user.upsert({
+    where: { email: operateurEmail },
+    update: { passwordHash: operateurHash, role: "OPERATEUR" },
+    create: {
+      email: operateurEmail,
+      passwordHash: operateurHash,
+      name: "Opérateur test",
+      role: "OPERATEUR",
+    },
+  });
+
   await prisma.instanceSettings.upsert({
     where: { id: "singleton" },
     update: {
@@ -218,7 +233,13 @@ async function main() {
     console.log("Formation démo créée — slug:", slugDemo);
   }
 
-  console.log("Seed OK — admin:", email, "(ADMIN), InstanceSettings singleton");
+  console.log(
+    "Seed OK — admin:",
+    email,
+    "(ADMIN), operateur:",
+    operateurEmail,
+    "(OPERATEUR), InstanceSettings singleton"
+  );
 }
 
 main()

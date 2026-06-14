@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import slugify from "slugify";
 import { FormationStatut, Modalite } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireAuth } from "@/lib/permissions";
 import { launchFormation } from "@/server/workflows/launch";
 import {
   generateEmargements,
@@ -26,11 +26,6 @@ import {
   assertPdfUpload,
   getFormDataFile,
 } from "@/server/services/file-security";
-
-async function requireAuth() {
-  const session = await auth();
-  if (!session?.user) throw new Error("Non authentifié");
-}
 
 export async function listFormations() {
   await requireAuth();
