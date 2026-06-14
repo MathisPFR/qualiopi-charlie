@@ -25,6 +25,12 @@ export async function DashboardNav() {
           >
             Formations
           </Link>
+          <Link
+            href="/compte"
+            className="rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Mon compte
+          </Link>
           {showAdminLinks && (
             <>
               <Link

@@ -9,9 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; passwordChanged?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, passwordChanged } = await searchParams;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-4">
@@ -29,6 +29,12 @@ export default async function LoginPage({
           <CardTitle className="text-lg">Connexion</CardTitle>
         </CardHeader>
         <CardContent>
+          {passwordChanged === "1" && (
+            <p className="mb-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+              Mot de passe modifié. Connectez-vous avec votre nouveau mot de
+              passe.
+            </p>
+          )}
           {error === "invalid" && (
             <p className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
               Email ou mot de passe incorrect.
