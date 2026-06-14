@@ -1,3 +1,4 @@
+import type { ObjectifFormation } from "@prisma/client";
 import { notFound } from "next/navigation";
 import { getFormationBySlug } from "@/server/db/formation";
 import { PublicForm } from "@/components/public-form";
@@ -8,13 +9,13 @@ import {
 
 function resolveSections(
   formType: string,
-  objectifs: { libelle: string }[]
+  objectifs: Pick<ObjectifFormation, "libelle">[]
 ): FormSection[] | null {
   const meta = PUBLIC_FORM_META[formType];
   if (!meta) return null;
   const sections =
     typeof meta.sections === "function"
-      ? meta.sections(objectifs)
+      ? meta.sections(objectifs as ObjectifFormation[])
       : meta.sections;
   return sections;
 }
