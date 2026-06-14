@@ -45,7 +45,7 @@ development_status:
   epic-1: in-progress
   1-1-initialiser-shadcn-ui-et-composants-de-base: done
   1-2-schema-prisma-roles-et-instancesettings: review
-  1-3-service-object-storage-et-getinstanceconfig: backlog
+  1-3-service-object-storage-et-getinstanceconfig: review
   1-4-middleware-et-gardes-admin-operateur: backlog
   1-5-connexion-et-changement-de-mot-de-passe: backlog
   1-6-invitation-utilisateur-par-email: backlog

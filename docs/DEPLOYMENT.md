@@ -71,3 +71,31 @@ Shell dans le conteneur (Node 22, outils npm) :
 ```bash
 ./scripts/docker-shell.sh
 ```
+
+### Tester le stockage S3 (MinIO)
+
+MinIO simule Cloudflare R2 en local (même driver `STORAGE_DRIVER=r2`, même SDK S3).
+
+```bash
+# MinIO démarre avec docker compose (ports 9000 API, 9001 console)
+docker compose up -d minio minio-init
+
+# Smoke test sans modifier .env (one-shot via variables injectées)
+./scripts/smoke-storage-minio.sh
+# ou : npm run storage:smoke:minio
+```
+
+Console web : [http://localhost:9001](http://localhost:9001) — login `minioadmin` / `minioadmin`, bucket `qualiopi-dev`.
+
+Pour que **toute l'app** utilise MinIO (pas seulement le smoke test), ajouter dans `.env` :
+
+```env
+STORAGE_DRIVER=r2
+R2_ENDPOINT=http://minio:9000
+R2_BUCKET=qualiopi-dev
+R2_ACCESS_KEY_ID=minioadmin
+R2_SECRET_ACCESS_KEY=minioadmin
+R2_S3_FORCE_PATH_STYLE=true
+```
+
+Puis `docker compose restart app`. Les workflows POC (`storage.ts`) ignorent encore ce driver — seul le code via `getObjectStorage()` en profite (migration workflows : story 5.3).
