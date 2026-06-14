@@ -38,12 +38,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id;
         token.role = user.role;
       }
+      // JWT émis avant story 1.4 : recharger le rôle depuis la BDD
+      if (token.id && !token.role) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true },
+        });
+        if (dbUser) token.role = dbUser.role;
+      }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string;
-        session.user.role = token.role as UserRole;
+        if (token.role) {
+          session.user.role = token.role as UserRole;
+        }
       }
       return session;
     },

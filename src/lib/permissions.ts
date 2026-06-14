@@ -1,5 +1,6 @@
 import { UserRole } from "@prisma/client";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export type SessionUser = {
   id: string;
@@ -17,10 +18,24 @@ export class AuthError extends Error {
 
 export async function requireAuth(): Promise<SessionUser> {
   const session = await auth();
-  if (!session?.user?.id || !session.user.role) {
+  if (!session?.user?.id) {
     throw new AuthError("Non authentifié");
   }
-  return session.user as SessionUser;
+
+  let role: UserRole | undefined = session.user.role;
+  if (!role) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+    role = dbUser?.role ?? undefined;
+  }
+
+  if (!role) {
+    throw new AuthError("Non authentifié");
+  }
+
+  return { ...session.user, role };
 }
 
 export async function requireAdmin(): Promise<SessionUser> {
