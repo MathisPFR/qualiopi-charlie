@@ -1,6 +1,6 @@
 # Story 1.6: Invitation utilisateur par email
 
-Status: review
+Status: done
 
 ## Story
 
