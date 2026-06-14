@@ -9,9 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; passwordChanged?: string }>;
+  searchParams: Promise<{ error?: string; passwordChanged?: string; activated?: string }>;
 }) {
-  const { error, passwordChanged } = await searchParams;
+  const { error, passwordChanged, activated } = await searchParams;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-4">
@@ -33,6 +33,11 @@ export default async function LoginPage({
             <p className="mb-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
               Mot de passe modifié. Connectez-vous avec votre nouveau mot de
               passe.
+            </p>
+          )}
+          {activated === "1" && (
+            <p className="mb-4 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800">
+              Compte activé. Connectez-vous avec votre email et mot de passe.
             </p>
           )}
           {error === "invalid" && (

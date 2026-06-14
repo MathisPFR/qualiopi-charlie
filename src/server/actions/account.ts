@@ -62,6 +62,10 @@ export async function changePassword(
     return { ok: false, error: "Compte introuvable" };
   }
 
+  if (!dbUser.passwordHash) {
+    return { ok: false, error: "Compte non activé" };
+  }
+
   const valid = await bcrypt.compare(currentPassword, dbUser.passwordHash);
   if (!valid) {
     return { ok: false, error: "Mot de passe actuel incorrect" };
