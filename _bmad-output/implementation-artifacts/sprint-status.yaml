@@ -1,0 +1,110 @@
+# generated: 2026-06-14T00:00:00Z
+# last_updated: 2026-06-14T12:00:00Z
+# project: app
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: {project-root}/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-06-14T00:00:00Z
+last_updated: 2026-06-14T12:00:00Z
+project: app
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  epic-1: in-progress
+  1-1-initialiser-shadcn-ui-et-composants-de-base: ready-for-dev
+  1-2-schema-prisma-roles-et-instancesettings: backlog
+  1-3-service-object-storage-et-getinstanceconfig: backlog
+  1-4-middleware-et-gardes-admin-operateur: backlog
+  1-5-connexion-et-changement-de-mot-de-passe: backlog
+  1-6-invitation-utilisateur-par-email: backlog
+  1-7-reinitialisation-mot-de-passe-oublie: backlog
+  1-8-apis-sante-et-version: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-page-parametres-shell-et-sections: backlog
+  2-2-connecteur-brevo-chiffre-avec-test: backlog
+  2-3-regles-workflow-instance: backlog
+  2-4-branding-logo-et-couleur-primaire: backlog
+  2-5-gestion-templates-documents: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-crud-formation-type-creation-et-liste: backlog
+  3-2-edition-type-avec-avertissement-d-impact: backlog
+  3-3-propagation-automatique-brouillon: backlog
+  3-4-application-optionnelle-aux-formations-actives: backlog
+  3-5-selection-type-a-la-creation-formation: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-sidebar-contextuelle-app-formation: backlog
+  4-2-vue-d-ensemble-formation: backlog
+  4-3-page-preparation-fiche-complete: backlog
+  4-4-cycle-de-vie-des-statuts-formation: backlog
+  4-5-page-documents-formation-scope-local: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-modele-signaturerequest-et-documenso-ce: backlog
+  5-2-webhook-documenso-pdf-signe-r2: backlog
+  5-3-migrer-workflow-lancement-vers-object-storage: backlog
+  5-4-ui-lancement-prerequis-et-checklist: backlog
+  5-5-execution-lancement-docs-emails-signatures: backlog
+  5-6-suivi-post-lancement-relance-et-preuves: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-workflow-emargements-pdf-au-passage-en-cours: backlog
+  6-2-page-en-cours-consultation-emargements-pdf: backlog
+  6-3-emargement-signature-digitale-par-seance: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-workflow-fin-de-formation: backlog
+  7-2-page-cloture: backlog
+  7-3-cron-evaluation-a-froid-m-2: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-finition-ux-des-formulaires-publics-mobile: backlog
+  8-2-pre-remplissage-et-preuve-de-soumission: backlog
+  epic-8-retrospective: optional
+
+  epic-9: backlog
+  9-1-page-bibliotheque-globale: backlog
+  9-2-export-zip-multi-selection: backlog
+  9-3-listing-r2-unifie-drive-api: backlog
+  epic-9-retrospective: optional
