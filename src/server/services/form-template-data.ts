@@ -11,7 +11,7 @@ import {
 function acquisFroidLabel(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
-  const opt = SCALE_ACQUIS_FROID.find((o) => o.value === trimmed);
+  const opt = SCALE_ACQUIS_FROID?.find((o) => o.value === trimmed);
   return opt?.label ?? trimmed;
 }
 
