@@ -1,17 +1,47 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { readFileSync } from "fs";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 
 const prisma = new PrismaClient();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function loadClientConfig() {
+  const path = join(__dirname, "../config/client.json");
+  return JSON.parse(readFileSync(path, "utf8"));
+}
 
 async function main() {
+  const clientConfig = loadClientConfig();
   const email = process.env.ADMIN_EMAIL ?? "admin@charlie.local";
   const password = process.env.ADMIN_PASSWORD ?? "admin123";
   const hash = await bcrypt.hash(password, 10);
 
   await prisma.user.upsert({
     where: { email },
-    update: { passwordHash: hash },
-    create: { email, passwordHash: hash, name: "Admin" },
+    update: { passwordHash: hash, role: "ADMIN" },
+    create: {
+      email,
+      passwordHash: hash,
+      name: "Admin",
+      role: "ADMIN",
+    },
+  });
+
+  await prisma.instanceSettings.upsert({
+    where: { id: "singleton" },
+    update: {
+      orgName: clientConfig.orgName ?? null,
+      orgEmail: clientConfig.orgEmail ?? null,
+      formBaseUrl: clientConfig.formBaseUrl ?? null,
+    },
+    create: {
+      id: "singleton",
+      orgName: clientConfig.orgName ?? null,
+      orgEmail: clientConfig.orgEmail ?? null,
+      formBaseUrl: clientConfig.formBaseUrl ?? null,
+    },
   });
 
   const existing = await prisma.formation.findFirst({
@@ -188,7 +218,7 @@ async function main() {
     console.log("Formation démo créée — slug:", slugDemo);
   }
 
-  console.log("Seed OK — admin:", email);
+  console.log("Seed OK — admin:", email, "(ADMIN), InstanceSettings singleton");
 }
 
 main()

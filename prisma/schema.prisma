@@ -47,13 +47,35 @@ enum FormType {
   EVAL_FROID
 }
 
+enum UserRole {
+  ADMIN
+  OPERATEUR
+}
+
+enum EmargementMode {
+  PDF
+  SIGNATURE
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
   passwordHash String
   name         String?
+  role         UserRole @default(OPERATEUR)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model InstanceSettings {
+  id                    String         @id @default("singleton")
+  orgName               String?
+  orgEmail              String?
+  formBaseUrl           String?
+  devisRequired         Boolean        @default(true)
+  sendProgrammeOnLaunch Boolean        @default(false)
+  emargementModeDefault  EmargementMode @default(PDF)
+  updatedAt             DateTime       @updatedAt
 }
 
 model Entreprise {
