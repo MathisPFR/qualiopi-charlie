@@ -1,10 +1,18 @@
+import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 import { signIn } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-4">
       <div className="mb-8 text-center">
@@ -21,14 +29,26 @@ export default function LoginPage() {
           <CardTitle className="text-lg">Connexion</CardTitle>
         </CardHeader>
         <CardContent>
+          {error === "invalid" && (
+            <p className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              Email ou mot de passe incorrect.
+            </p>
+          )}
           <form
             action={async (formData) => {
               "use server";
-              await signIn("credentials", {
-                email: formData.get("email"),
-                password: formData.get("password"),
-                redirectTo: "/",
-              });
+              try {
+                await signIn("credentials", {
+                  email: formData.get("email"),
+                  password: formData.get("password"),
+                  redirectTo: "/",
+                });
+              } catch (e) {
+                if (e instanceof AuthError && e.type === "CredentialsSignin") {
+                  redirect("/login?error=invalid");
+                }
+                throw e;
+              }
             }}
             className="space-y-4"
           >
