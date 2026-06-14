@@ -72,6 +72,15 @@ Shell dans le conteneur (Node 22, outils npm) :
 ./scripts/docker-shell.sh
 ```
 
+### Tests automatisés (Vitest)
+
+```bash
+docker compose exec app npm test
+# ou en watch : docker compose exec app npm run test:watch
+```
+
+Couvre la logique serveur des stories 1.2–1.5 (permissions, config, object-storage, changement MDP).
+
 ### Tester le stockage S3 (MinIO)
 
 MinIO simule Cloudflare R2 en local (même driver `STORAGE_DRIVER=r2`, même SDK S3).
