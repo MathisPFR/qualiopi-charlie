@@ -1,8 +1,12 @@
 import Link from "next/link";
-import { signOut } from "@/lib/auth";
+import { signOut, auth } from "@/lib/auth";
+import { isAdmin } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 
-export function DashboardNav() {
+export async function DashboardNav() {
+  const session = await auth();
+  const showAdminLinks = isAdmin(session?.user?.role);
+
   return (
     <header className="sticky top-0 z-10 border-b bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
@@ -21,6 +25,22 @@ export function DashboardNav() {
           >
             Formations
           </Link>
+          {showAdminLinks && (
+            <>
+              <Link
+                href="/types"
+                className="rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                Types
+              </Link>
+              <Link
+                href="/parametres"
+                className="rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                Paramètres
+              </Link>
+            </>
+          )}
           <Button asChild size="sm" variant="default">
             <Link href="/formations/new">Nouvelle</Link>
           </Button>

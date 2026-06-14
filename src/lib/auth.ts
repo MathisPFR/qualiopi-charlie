@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { UserRole } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -20,7 +21,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!user) return null;
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
-        return { id: user.id, email: user.email, name: user.name ?? "Admin" };
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name ?? "Admin",
+          role: user.role,
+        };
       },
     }),
   ],
@@ -30,12 +36,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string;
+        session.user.role = token.role as UserRole;
       }
       return session;
     },
