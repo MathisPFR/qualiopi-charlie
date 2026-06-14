@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { isAdminOnlyPath } from "@/lib/admin-routes";
 import { NextResponse } from "next/server";
@@ -20,11 +19,7 @@ export default auth((req) => {
   }
 
   const role = req.auth?.user?.role;
-  if (
-    isLoggedIn &&
-    isAdminOnlyPath(pathname) &&
-    role !== UserRole.ADMIN
-  ) {
+  if (isLoggedIn && isAdminOnlyPath(pathname) && role !== "ADMIN") {
     return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
